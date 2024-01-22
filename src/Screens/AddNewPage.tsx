@@ -149,7 +149,6 @@ function AddNewPage(prop: typeprop) {
   };
 
   const handleConfirmDate = (date: any) => {
-    console.warn('A date has been picked: ', date);
     var newDate = new Date(date);
     settimeStamp(date);
     hideDatePicker();

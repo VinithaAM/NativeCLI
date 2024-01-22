@@ -18,17 +18,17 @@ export interface IHistoryDataCorrection {
 export const histotyDataList: IHistoryDataCorrection[] = [
   {
     id: 1,
-    historyId: "/Hawkesbury/WM101_N19_Volume",
-    timeStamp: "2023-11-06 08:09:00", //datetime
+    historyId: '/Hawkesbury/WM101_N19_Volume',
+    timeStamp: '2023-11-06 08:09:00', //datetime
     value: 0, //double
-    statusTags: "{ok}",
+    statusTags: '{ok}',
     trendFlags: 0,
     status: 0,
-    trandFlagTag: "{}",
+    trandFlagTag: '{}',
     correctedStatus: 0,
     correctionRule: 1,
     correctedValue: 21512.01953125,
-    color: "red",
+    color: 'red',
     // CreatedBy:0,
     // DateCreated:null,
     // LastModifiedBy:0,
@@ -41,20 +41,25 @@ export enum PageEnum {
   list,
   add,
 }
-
+export interface IUserDetails {
+  id: number;
+  Name: string;
+  UserName: string;
+  Profilepic: string;
+}
 export const DataList: IHistoryDataCorrection = {
   id: 1,
-  historyId: "/Hawkesbury/WM101_N19_Volume",
-  timeStamp: "2023-11-06 08:09:00", //datetime
+  historyId: '/Hawkesbury/WM101_N19_Volume',
+  timeStamp: '2023-11-06 08:09:00', //datetime
   value: 0, //double
-  statusTags: "{ok}",
+  statusTags: '{ok}',
   trendFlags: 0,
   status: 0,
-  trandFlagTag: "{}",
+  trandFlagTag: '{}',
   correctedStatus: 0,
   correctionRule: 1,
   correctedValue: 21512.01953125, //double
-  color: "red",
+  color: 'red',
   // CreatedBy:0,
   // DateCreated:,
   // LastModifiedBy:0,
@@ -78,7 +83,7 @@ export interface IMasterName {
 export const masterNames: IMasterName[] = [
   {
     id: 0,
-    historyId: "string",
+    historyId: 'string',
     status: true,
   },
 ];
@@ -91,15 +96,15 @@ export enum SortDirection {
   Descending,
 }
 export enum toaster {
-  Warning = "Warning",
-  Success = "Success",
-  Failed = "Failed",
+  Warning = 'Warning',
+  Success = 'Success',
+  Failed = 'Failed',
 }
 export enum severity {
-  error = "error",
-  Success = "success",
-  Info = "info",
-  warn = "warn",
+  error = 'error',
+  Success = 'success',
+  Info = 'info',
+  warn = 'warn',
 }
 // export function sortObjects<T>(
 //   data: T[],

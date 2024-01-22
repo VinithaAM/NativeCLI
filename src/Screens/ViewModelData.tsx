@@ -16,11 +16,9 @@ import {ScreenType} from './StackNavigation';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {getHistoryCorrection} from '../Services/CommonService';
 
-type Proptype = NativeStackScreenProps<ScreenType, 'ViewModel'>;
-function ViewModelData(props: Proptype) {
+function ViewModelData() {
   // console.log("view", props);
   //const route = useRoute();
-  const {navigation} = props;
   const [CorrectionData, setCorrectionData] = useState();
   const [columns, setColumns] = useState(1);
   const [ListData, setListData] = useState([]);
@@ -42,7 +40,6 @@ function ViewModelData(props: Proptype) {
         })
         .catch((error: any) => {
           console.log('Error occurred', error);
-          navigation.navigate('LoginPage');
         });
     } catch (error) {
       console.log('Error occured', error);

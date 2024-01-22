@@ -1,6 +1,5 @@
 import React from 'react';
 import {View, Text, StyleSheet, Pressable} from 'react-native';
-import Chevron from './Chevron';
 
 function Sample(props: any) {
   console.log('Prop', props);
@@ -8,7 +7,6 @@ function Sample(props: any) {
     <View style={style.container}>
       <Pressable style={style.titleContainer}>
         <Text style={style.textTitle}>{props.title}</Text>
-        <Chevron></Chevron>
       </Pressable>
     </View>
   );

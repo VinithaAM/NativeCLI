@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 // import Toast from 'react-native-toast';
 import {
   TextInput,
@@ -15,6 +15,7 @@ import {
   Image,
   Platform,
   Alert,
+  Linking,
 } from 'react-native';
 // import { MaterialCommunityIcons } from "@expo/vector-icons/";
 import {login} from '../Services/CommonService';
@@ -24,12 +25,39 @@ import {ScreenType} from './StackNavigation';
 
 type Proptype = NativeStackScreenProps<ScreenType, 'LoginPage'>;
 
+// const db = openDatabase(
+//   {
+//     name: 'ApplicationDB',
+//     location: 'default',
+//   },
+//   () => {},
+//   error => {
+//     console.log(error);
+//   },
+// );
 function LoginPage(prop: Proptype) {
   const {navigation} = prop;
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordSecure, setIsPasswordSecure] = useState(true);
   const [loading, setLoading] = useState(false);
+
+  // const createTable = () => {
+  //   db.transaction(tnx => {
+  //     tnx.executeSql(
+  //       'CREATE TABLE IF NOT EXISTS ' +
+  //         'UserDetails' +
+  //         '(Id INTEGER PRIMARY KEY AUTOINCREMENT,Name TEXT, UserName TEXT,Profilepic BLOB)',
+  //     ),
+  //       [],
+  //       (result: any) => {
+  //         console.log('Table Created Successfully');
+  //       },
+  //       (error: any) => {
+  //         console.log('Create table error', error);
+  //       };
+  //   });
+  // };
   const onPressClear = () => {
     setUserName('');
     setPassword('');
@@ -46,6 +74,12 @@ function LoginPage(prop: Proptype) {
   const oncancelhandle = () => {
     navigation.navigate('WelcomePage');
   };
+  const onhandlesample = () => {
+    navigation.navigate('samplePage');
+  };
+  useEffect(() => {
+    // createTable();
+  }, []);
   const loginfuntion = () => {
     setLoading(true);
     var loginDetails = {
@@ -70,6 +104,7 @@ function LoginPage(prop: Proptype) {
 
               result.data.data.token,
             );
+
             setUserName('');
             setPassword('');
             setLoading(false);
@@ -92,6 +127,9 @@ function LoginPage(prop: Proptype) {
   };
   const onHadleSignup = () => {
     navigation.navigate('RegistrationPage');
+  };
+  const onHandleForgetPassword = () => {
+    navigation.navigate('ForgetPassword');
   };
   //const isPasswordEmpty = password.trim() === "";
   const [validationMessage, setValidationMessage] = useState('');
@@ -145,10 +183,10 @@ function LoginPage(prop: Proptype) {
         <LoadingAnimation />
       ) : (
         <View style={style.container}>
-          {/* <Image
+          <Image
             source={require('../assets/profilepic.png')}
             style={{width: 50, height: 50}}
-          /> */}
+          />
           <Text style={style.textTitle}>Welcome</Text>
           <Text style={style.inputTitle}>UserName</Text>
           <TextInput
@@ -207,8 +245,20 @@ function LoginPage(prop: Proptype) {
               <Text style={style.buttonText}>SignUp for free</Text>
             </TouchableOpacity>
           </View>
+          <TouchableOpacity
+            style={[style.button, style.signup]}
+            onPress={onhandlesample}>
+            <Text style={style.buttonText}>Image Upload</Text>
+          </TouchableOpacity>
+          <Text
+            style={{color: '#103a9e', fontSize: 18}}
+            onPress={onHandleForgetPassword}>
+            Forget Password?
+          </Text>
+          {/* Linking.openURL('http://google.com') */}
         </View>
       )}
+      <View></View>
     </>
   );
 }
@@ -261,6 +311,7 @@ const style = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
   },
+
   buttonClear: {
     backgroundColor: '#131413',
     textAlign: 'center',
@@ -281,6 +332,7 @@ const style = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    margin: 4,
   },
   buttonText: {
     color: '#fff',

@@ -3,7 +3,7 @@ import axios, {AxiosRequestConfig} from 'axios';
 
 //apiSerive for login
 
-const url = 'https://historydatacorrection.azurewebsites.net/api';
+const url = 'https://mysampleproject.azurewebsites.net/api';
 //const token = await AsyncStorage.getItem("LoginResponse");
 const headers = {
   'Content-Type': 'application/json',
@@ -72,11 +72,12 @@ export const getHistoryCorrection = async () => {
   }
 };
 export const MasterHistoryData = async () => {
-  // const headers = {
-  //   "Content-Type": "application/json",
-  //   Authorization: `${token}`,
-  //   // Accept: "application/json",
-  // };
+  const token = await AsyncStorage.getItem('LoginResponse');
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+    // Accept: "application/json",
+  };
   const requestConfig: AxiosRequestConfig = {
     headers: headers,
   };
@@ -95,6 +96,15 @@ export const MasterHistoryData = async () => {
 };
 // API Call for New item add
 export const AddNewItem = async (ItemDetails: any) => {
+  const token = await AsyncStorage.getItem('LoginResponse');
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+    // Accept: "application/json",
+  };
+  const requestConfig: AxiosRequestConfig = {
+    headers: headers,
+  };
   try {
     const result = await axios.post(
       url + `/HistoryData/Create`,
@@ -107,6 +117,15 @@ export const AddNewItem = async (ItemDetails: any) => {
   }
 };
 export const updateCorrectionDetails = async (updateDetails: any) => {
+  const token = await AsyncStorage.getItem('LoginResponse');
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+    // Accept: "application/json",
+  };
+  const requestConfig: AxiosRequestConfig = {
+    headers: headers,
+  };
   try {
     const result = await axios.put(
       url + `/HistoryData/Update`,
@@ -119,9 +138,38 @@ export const updateCorrectionDetails = async (updateDetails: any) => {
   }
 };
 export const deleteCorrection = async (id: any) => {
+  const token = await AsyncStorage.getItem('LoginResponse');
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+    // Accept: "application/json",
+  };
+  const requestConfig: AxiosRequestConfig = {
+    headers: headers,
+  };
   try {
     const result = await axios.delete(
       url + `/HistoryData/Delete?id=${id}`,
+      requestConfig,
+    );
+    return result;
+  } catch (error: any) {
+    return error.response.data;
+  }
+};
+export const forgetPassword = async (email: any) => {
+  const token = await AsyncStorage.getItem('LoginResponse');
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+    // Accept: "application/json",
+  };
+  const requestConfig: AxiosRequestConfig = {
+    headers: headers,
+  };
+  try {
+    const result = await axios.delete(
+      url + `/Login/ForgetPassowrd?email=${email}`,
       requestConfig,
     );
     return result;

@@ -1,31 +1,13 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React from 'react';
 import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import {StyleSheet, Text, useColorScheme, View} from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
 import StackNavigation from './src/Screens/StackNavigation';
 import {NavigationContainer} from '@react-navigation/native';
+import {PERMISSIONS} from 'react-native-permissions';
+import {PermissionsAndroid, Linking} from 'react-native';
+import {Button} from 'react-native-elements';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -59,11 +41,19 @@ function Section({children, title}: SectionProps): JSX.Element {
 
 function App(): JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const requestPermission = async () => {
+    console.log('helllo');
+    const grand = await PermissionsAndroid.requestMultiple([
+      //PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+      PermissionsAndroid.PERMISSIONS.CAMERA,
+      PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+      // PermissionsAndroid.PERMISSIONS.PUSH_NOTIFICATIONS,
+      //PermissionsAndroid.PERMISSIONS.ACCESS_FILE_LOCATION,
+    ]);
+    console.log('granted', grand);
+    return grand;
   };
-
   return (
     // <SafeAreaView style={backgroundStyle}>
     //   <StatusBar />
@@ -76,6 +66,11 @@ function App(): JSX.Element {
     //   </ScrollView>
     // </SafeAreaView>
     <NavigationContainer>
+      {/* <Button
+        title="Click to permission"
+        onPress={async () => {
+          requestPermission();
+        }}></Button> */}
       <StackNavigation></StackNavigation>
     </NavigationContainer>
   );

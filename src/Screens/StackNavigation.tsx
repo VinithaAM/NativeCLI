@@ -8,6 +8,10 @@ import FlatListPage from '../Screens/FlatListPage';
 import AddNewPage from '../Screens/AddNewPage';
 import Navigatior from '../Screens/Navigatior';
 import ViewModelData from '../Screens/ViewModelData';
+import ForgetPassword from './ForgetPassword';
+import OtpScreen from './OtpScreen';
+import ChangePassword from './ChangePassword';
+import StorageImplementation from './StorageImplementation';
 
 export type ScreenType = {
   LoginPage: undefined;
@@ -15,8 +19,10 @@ export type ScreenType = {
   RegistrationPage: undefined;
   FlatListPage: undefined;
   AddNew: undefined;
-  ViewModel: any;
-  Accordion: any;
+  ForgetPassword: undefined;
+  OTPPage: undefined;
+  ChangePassword: undefined;
+  samplePage: undefined | any;
 };
 const Stack = createNativeStackNavigator<ScreenType>();
 function StackNavigation() {
@@ -37,7 +43,8 @@ function StackNavigation() {
         name="LoginPage"
         component={LoginPage}
         options={{
-          headerBackVisible: false, // This removes the back arrow
+          headerBackVisible: false,
+          headerTintColor: 'black', // This removes the back arrow
         }}
       />
       <Stack.Screen name="RegistrationPage" component={RegistrationPage} />
@@ -45,11 +52,46 @@ function StackNavigation() {
         name="FlatListPage"
         component={FlatListPage}
         options={{
-          headerBackVisible: false, // This removes the back arrow
+          headerBackVisible: false,
+          headerTintColor: 'black', // This removes the back arrow
         }}
       />
       <Stack.Screen name="AddNew" component={AddNewPage} />
-      <Stack.Screen name="ViewModel" component={ViewModelData} />
+      <Stack.Screen
+        name="ForgetPassword"
+        component={ForgetPassword}
+        options={{
+          headerBackVisible: false,
+          headerTitle: 'Forget Password',
+          headerStyle: {
+            backgroundColor: 'lightblue',
+          },
+          headerTintColor: 'black',
+        }}
+      />
+      <Stack.Screen
+        name="OTPPage"
+        component={OtpScreen}
+        options={{
+          headerTitle: '',
+          headerStyle: {
+            backgroundColor: 'lightblue',
+          },
+          headerTintColor: 'black',
+        }}
+      />
+      <Stack.Screen
+        name="ChangePassword"
+        component={ChangePassword}
+        options={{
+          headerTitle: 'Change Password',
+          headerStyle: {
+            backgroundColor: 'lightblue',
+          },
+          headerTintColor: 'black',
+        }}
+      />
+      <Stack.Screen name="samplePage" component={StorageImplementation} />
       {/* <Stack.Screen name="Accordion" component={Accordions} /> */}
     </Stack.Navigator>
   );

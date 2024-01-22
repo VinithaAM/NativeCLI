@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   Pressable,
   Text,
@@ -8,32 +8,32 @@ import {
   Button,
   TextInput,
   TouchableOpacity,
-} from "react-native";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import { Dropdown } from "react-native-element-dropdown";
+} from 'react-native';
+// import AntDesign from "@expo/vector-icons/AntDesign";
+import {Dropdown} from 'react-native-element-dropdown';
 import {
   MasterHistoryData,
   deleteCorrection,
   getHistoryCorrection,
   updateCorrectionDetails,
-} from "../Services/CommonService";
-import Modal from "react-native-modal";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { useFocusEffect } from "@react-navigation/native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { ScreenType } from "../Screens/StackNavigation";
-import RNDateTimePicker from "@react-native-community/datetimepicker";
+} from '../Services/CommonService';
+import Modal from 'react-native-modal';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import {useFocusEffect} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {ScreenType} from '../Screens/StackNavigation';
+import RNDateTimePicker from '@react-native-community/datetimepicker';
 
 function CommonGrid(_prop: any) {
   // console.log("Data", _prop);
   const [selectedItem, setSelectedItem] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [historyId, sethistoryId] = useState("");
-  const [timeStamp, settimeStamp] = useState("");
+  const [historyId, sethistoryId] = useState('');
+  const [timeStamp, settimeStamp] = useState('');
   const [correctionValue, setcorrectionValue] = useState(0);
-  const [status, setstatus] = useState("");
-  const [value, setValue] = useState("");
+  const [status, setstatus] = useState('');
+  const [value, setValue] = useState('');
   const [masterValue, setMasterValue] = useState([]);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [date, setDate] = useState(new Date());
@@ -49,7 +49,7 @@ function CommonGrid(_prop: any) {
   const showDatePicker = () => {
     setDatePickerVisibility(!isDatePickerVisible);
   };
-  const showModal = (item) => {
+  const showModal = item => {
     setModalVisible(true);
     setSelectedItem(item);
   };
@@ -60,7 +60,7 @@ function CommonGrid(_prop: any) {
   const hideEditModal = () => {
     setEditModalVisible(false);
   };
-  const onClickEdit = (item) => {
+  const onClickEdit = item => {
     setEditModalVisible(true);
     masterDatafetch();
     sethistoryId(item.historyId);
@@ -71,7 +71,7 @@ function CommonGrid(_prop: any) {
   };
   function onChangeStatus(e: any) {
     const regex = /^[a-zA-Z]*$/;
-    if (regex.test(e) || e === "") {
+    if (regex.test(e) || e === '') {
       setstatus(e);
     }
   }
@@ -79,12 +79,12 @@ function CommonGrid(_prop: any) {
     setcorrectionValue(e);
   }
   const masterDatafetch = () => {
-    MasterHistoryData().then((result) => {
+    MasterHistoryData().then(result => {
       setMasterValue(result.data.data);
     });
   };
   const correctionDatafetch = () => {
-    getHistoryCorrection().then((result) => {
+    getHistoryCorrection().then(result => {
       _prop = result.data.data;
       // console.log("Rerender", _prop);
       setListValue(result.data.data);
@@ -105,12 +105,12 @@ function CommonGrid(_prop: any) {
       </View>
     );
   };
-  const onChange = ({ type }, selectedDate) => {
-    if (type == "set") {
+  const onChange = ({type}, selectedDate) => {
+    if (type == 'set') {
       const currentdate = selectedDate;
       setDate(currentdate);
       settimeStamp(currentdate);
-      if (Platform.OS === "android") {
+      if (Platform.OS === 'android') {
         settimeStamp(currentdate);
       }
       showDatePicker();
@@ -118,7 +118,7 @@ function CommonGrid(_prop: any) {
       showDatePicker();
     }
   };
-  const onUpdateDetails = (item) => {
+  const onUpdateDetails = item => {
     let params = {
       id: item.id,
       historyId: historyId,
@@ -134,45 +134,45 @@ function CommonGrid(_prop: any) {
     try {
       updateCorrectionDetails(params)
         .then((result: any) => {
-          if (result.data.status == "Success") {
-            alert("updated");
+          if (result.data.status == 'Success') {
+            alert('updated');
             correctionDatafetch();
             setSelectedItem(result.data.data);
             setEditModalVisible(false);
           }
         })
         .catch((error: any) => {
-          console.log("Error occurred", error);
+          console.log('Error occurred', error);
         });
     } catch (error) {
-      console.log("Error occured", error);
+      console.log('Error occured', error);
     }
   };
-  const onClickDelete = (item) => {
+  const onClickDelete = item => {
     setDeleteModelVisible(true);
   };
-  const onConfirm = (e) => {
-    console.log("dele", e);
+  const onConfirm = e => {
+    console.log('dele', e);
     try {
       deleteCorrection(e.id)
         .then((result: any) => {
-          if (result.data.status == "Success") {
-            alert("Deleted Successfully");
+          if (result.data.status == 'Success') {
+            alert('Deleted Successfully');
             setModalVisible(false);
             correctionDatafetch();
           }
         })
         .catch((error: any) => {
-          console.log("Error occurred", error);
+          console.log('Error occurred', error);
         });
     } catch (error) {
-      console.log("Error occured", error);
+      console.log('Error occured', error);
     }
   };
   const onChangeDate = (event, selectedDate) => {
     console.log(selectedDate);
     var newDate = new Date(selectedDate);
-    setShowDatePicker(Platform.OS === "ios");
+    setShowDatePicker(Platform.OS === 'ios');
     if (newDate) {
       //setDate(selectedDate);
       var date = formatDate(newDate);
@@ -181,27 +181,26 @@ function CommonGrid(_prop: any) {
       // Perform any actions with the selected date
     }
   };
-  const formatDate = (date) => {
+  const formatDate = date => {
     return date.toLocaleDateString(); // Or use any date formatting method you prefer
   };
   return (
     <View>
-      <View style={[style.gridItem, { backgroundColor: "lightpink" }]}>
+      <View style={[style.gridItem, {backgroundColor: 'lightpink'}]}>
         <Pressable
-          android_ripple={{ color: "#ccc" }}
-          style={({ pressed }) => [
+          android_ripple={{color: '#ccc'}}
+          style={({pressed}) => [
             style.button,
             pressed ? style.buttonPressed : null,
           ]}
-          onPress={() => showModal(_prop.title)}
-        >
+          onPress={() => showModal(_prop.title)}>
           <View style={style.innerContainer}>
             <Text style={style.title}>{_prop.title.historyId}</Text>
             <AntDesign
               name="rightcircle"
               size={16}
               color="black"
-              style={{ marginLeft: 10 }}
+              style={{marginLeft: 10}}
             />
           </View>
         </Pressable>
@@ -270,16 +269,16 @@ const style = StyleSheet.create({
     height: 50,
     borderRadius: 8,
     elevation: 4,
-    shadowColor: "black",
+    shadowColor: 'black',
     shadowOpacity: 0.25,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowRadius: 8,
     marginTop: 4,
-    overflow: Platform.OS == "android" ? "hidden" : "visible",
+    overflow: Platform.OS == 'android' ? 'hidden' : 'visible',
   },
   body: {
-    paddingVertical: "3%",
-    paddingHorizontal: "2%",
+    paddingVertical: '3%',
+    paddingHorizontal: '2%',
   },
 
   button: {
@@ -294,40 +293,40 @@ const style = StyleSheet.create({
     borderRadius: 15,
     paddingLeft: 20,
     borderWidth: 2,
-    borderColor: "blue",
+    borderColor: 'blue',
     marginBottom: 20,
-    alignItems: "center",
+    alignItems: 'center',
     paddingHorizontal: 10,
   },
   innerContainer: {
     flex: 1,
     padding: 15,
     borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
   },
   buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   viewContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
     fontSize: 12,
   },
   dropdown: {
     margin: 10,
     height: 20,
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 12,
     padding: 15,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 1,
@@ -350,33 +349,33 @@ const style = StyleSheet.create({
   inputSearchStyle: {
     height: 40,
     fontSize: 16,
-    backgroundColor: "lightgray",
+    backgroundColor: 'lightgray',
   },
   modalView: {
     flex: 0.5,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "white",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
   },
   deleteModalView: {
     flex: 0.25,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "white",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
   },
   customButton: {
     padding: 10,
     borderRadius: 5,
     marginLeft: 4,
     marginRight: 4,
-    borderColor: "blue",
+    borderColor: 'blue',
   },
   inputTitle: {
     paddingLeft: 20,
     // opacity: 0.5,
-    color: "black",
-    fontWeight: "bold",
-    fontFamily: "serif",
+    color: 'black',
+    fontWeight: 'bold',
+    fontFamily: 'serif',
     fontSize: 15,
     marginRight: 15,
     //marginLeft: 30,
@@ -384,27 +383,27 @@ const style = StyleSheet.create({
     // alignItems: "baseline",
   },
   buttonLogin: {
-    backgroundColor: "green",
-    textAlign: "center",
-    color: "white",
+    backgroundColor: 'green',
+    textAlign: 'center',
+    color: 'white',
   },
   buttonDelete: {
-    backgroundColor: "red",
-    textAlign: "center",
+    backgroundColor: 'red',
+    textAlign: 'center',
   },
   buttonClear: {
-    backgroundColor: "#131413",
-    textAlign: "center",
-    color: "white",
+    backgroundColor: '#131413',
+    textAlign: 'center',
+    color: 'white',
   },
   icon: {
     marginRight: 5,
   },
   item: {
     padding: 17,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   textItem: {
     flex: 1,
@@ -414,29 +413,29 @@ const style = StyleSheet.create({
     padding: 5,
     borderRadius: 10,
     marginBottom: 10,
-    borderColor: "blue",
-    backgroundColor: "gray",
+    borderColor: 'blue',
+    backgroundColor: 'gray',
     // marginRight: 100,
     marginLeft: 10,
     width: 150,
-    alignContent: "center",
-    justifyContent: "center",
+    alignContent: 'center',
+    justifyContent: 'center',
     //paddingLeft: 15,
   },
   confirmButton: {
     marginTop: 10,
     padding: 10,
-    backgroundColor: "green",
+    backgroundColor: 'green',
     borderRadius: 5,
   },
   cancelButton: {
     marginTop: 10,
     padding: 10,
-    backgroundColor: "red",
+    backgroundColor: 'red',
     borderRadius: 5,
   },
   buttonText: {
-    color: "white",
+    color: 'white',
   },
 });
 export default CommonGrid;

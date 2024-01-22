@@ -35,10 +35,7 @@ import {ScreenType} from './StackNavigation';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {useFocusEffect} from '@react-navigation/native';
 
-type Proptype = NativeStackScreenProps<ScreenType, 'Accordion'>;
-function Accordions(props: {title: any}, prop: Proptype) {
-  var prop: Proptype;
-  const {navigation} = prop;
+function Accordions(props: {title: any}) {
   const [ListData, setListData] = useState([]);
   const [viewModalVisible, setViewModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -142,11 +139,11 @@ function Accordions(props: {title: any}, prop: Proptype) {
         })
         .catch((error: any) => {
           console.log('Error occurred', error);
-          navigation.navigate('LoginPage');
+          // navigation.navigate('LoginPage');
         });
     } catch (error) {
       console.log('Error occured', error);
-      navigation.navigate('LoginPage');
+      // navigation.navigate('LoginPage');
     }
   };
   // useEffect(() => {
@@ -168,11 +165,11 @@ function Accordions(props: {title: any}, prop: Proptype) {
         })
         .catch((error: any) => {
           console.log('Error occurred', error);
-          navigation.navigate('LoginPage');
+          // navigation.navigate('LoginPage');
         });
     } catch (error) {
       console.log('Error occured', error);
-      navigation.navigate('LoginPage');
+      // navigation.navigate('LoginPage');
     }
   };
   // function onChangeStatus(e: any) {
@@ -218,7 +215,7 @@ function Accordions(props: {title: any}, prop: Proptype) {
     getHistoryCorrection().then(result => {
       if ((result.data.status = 'Success')) {
         //setSelectedItem(result.data.data);
-        prop = result.data.data;
+        props = result.data.data;
         // if (selectedItem.historyId == result.data.data.historyId) {
         var filtereted = result.data.data.filter(
           (x: any) => x.historyId == selectedItem.historyId,
@@ -261,7 +258,6 @@ function Accordions(props: {title: any}, prop: Proptype) {
   };
 
   const handleConfirmDate = (date: any) => {
-    console.warn('A date has been picked: ', date);
     var newDate = new Date(date);
     settimeStamp(newDate);
     hideDatePicker();

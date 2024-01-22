@@ -2,8 +2,8 @@ import {
   NativeStackNavigationProp,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
-
-import React, {useState} from 'react';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import React, {useEffect, useState} from 'react';
 import {
   Text,
   TextInput,
@@ -16,11 +16,16 @@ import {
   Pressable,
   ToastAndroid,
   Alert,
+  Image,
+  ViewBase,
 } from 'react-native';
 import {ScreenType} from './StackNavigation';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {register} from '../Services/CommonService';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import ImagePicker from 'react-native-image-crop-picker';
 // import { MaterialCommunityIcons } from "@expo/vector-icons/";
+import {PermissionsAndroid, Linking} from 'react-native';
 
 type typeprop = NativeStackScreenProps<ScreenType, 'RegistrationPage'>;
 function RegistrationPage(prop: typeprop) {
@@ -29,7 +34,7 @@ function RegistrationPage(prop: typeprop) {
   const [lastName, setlastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [dob, setDOB] = useState('');
+  const [dob, setDOB] = useState(new Date());
   const [confirmPassword, setconfirmPassword] = useState('');
   const [passwordsMatch, setPasswordsMatch] = useState(true);
   const [isValid, setIsValidEmail] = useState<boolean>(true);
@@ -70,7 +75,7 @@ function RegistrationPage(prop: typeprop) {
   function handleClear() {
     setfirstName('');
     setlastName('');
-    setDOB('');
+    setDOB(new Date());
     setEmail('');
     setPassword('');
     setconfirmPassword('');
@@ -80,12 +85,6 @@ function RegistrationPage(prop: typeprop) {
     const isValidEmail = emailRegex.test(input);
     setIsValidEmail(isValidEmail);
   }
-  // const validatePassword = (input: string) => {
-  //   const passwordRegex =
-  //     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-  //   const isValidPassword = passwordRegex.test(input);
-  //   setIsValidPassword(isValidPassword);
-  // };
 
   const changeDate = (e: any) => {
     setDate(e.target.value);
@@ -96,8 +95,7 @@ function RegistrationPage(prop: typeprop) {
       firstName === null ||
       (firstName === '' && email === null) ||
       (email === '' && password === null) ||
-      (password === '' && dob === null) ||
-      dob === ''
+      (password === '' && dob === null)
     ) {
       res = true;
       setIsFirstNameEmpty(true);
@@ -108,9 +106,6 @@ function RegistrationPage(prop: typeprop) {
     }
     return res;
   }
-  // const handleDateChange = (date) => {
-  //   setSelectedDate(date);
-  // };
   const oncancelhandle = () => {
     navigation.navigate('LoginPage');
   };
@@ -124,7 +119,9 @@ function RegistrationPage(prop: typeprop) {
       dOB: dob ? dob : new Date(),
       status: true,
     };
-    if (fieldValidation() != true) {
+    console.log(params);
+    if (firstName != '' && email != '' && password != '') {
+      console.log(params);
       try {
         register(params)
           .then((result: any) => {
@@ -227,13 +224,91 @@ function RegistrationPage(prop: typeprop) {
       Alert.alert(msg);
     }
   }
-  const passwords = 'SamplePassword123!';
+  const handleSaveLocalStorage = () => {};
+  const handleConfirmDate = (date: any) => {
+    var newDate = new Date(date);
+    setDOB(newDate);
+    hideDatePicker();
+  };
+  const [selectedImage, setselectedImage] = useState('');
+  const ImagePicker = () => {
+    let Options = {
+      path: 'image',
+      multiple: true,
+      includeBase64: false,
+      maxHeight: 200,
+      maxWidth: 200,
+    };
+    console.log(images);
+    if (images === true) {
+      launchCamera(Options, response => {
+        console.log(response);
+        if (response.didCancel) {
+          console.warn('User cancelled image picker');
+        } else if (response.assets) {
+          setselectedImage(response?.assets[0]?.uri);
+        }
+      });
+    } else {
+      launchImageLibrary(Options, response => {
+        console.log(response);
+        if (response.didCancel) {
+          console.warn('User cancelled image picker');
+        } else if (response.assets) {
+          setselectedImage(response?.assets[0]?.uri);
+        }
+        console.log('images', selectedImage);
+      });
+    }
+
+    // if (response.didCancel) {
+    //   console.log('User cancelled image picker');
+    // } else if (response.error) {
+    //   console.log('ImagePicker Error: ', response.error);
+    // } else if (response.assets) {
+    //   // Handle selected images
+    //   const selectedImages = response.assets.map(asset => asset.uri);
+    //   setselectedImage(selectedImages);
+    // }
+    // console.log('images', selectedImage);
+    // });
+  };
+  // const imagepickermulti = () => {
+  //   const options = {
+  //     multiple: true,
+  //   };
+  //   ImagePicker.openPicker({
+  //     multiple: true,
+  //   }).then(images => {
+  //     console.log(images);
+  //     setselectedImage(images.map(x => x.path));
+  //     console.log('sele', selectedImage.length);
+  //   });
+  // };
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     requestPermission();
+  //   }, 5000);
+  // }, []);
+  const [images, setImages] = useState(false);
+  const requestPermission = async () => {
+    const grand = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.CAMERA,
+    );
+    console.log('granted', grand);
+    if (grand == 'granted') {
+      setImages(true);
+      await ImagePicker();
+    } else {
+      await ImagePicker();
+    }
+  };
 
   return (
     <View style={style.container}>
       <Text style={style.textTitle}>Sign Up Form</Text>
-      <Text style={style.inputTitle}>Firstname</Text>
 
+      <Text style={style.inputTitle}>Firstname</Text>
       <TextInput
         placeholder="Enter the Firstame"
         style={[
@@ -332,7 +407,14 @@ function RegistrationPage(prop: typeprop) {
         <Pressable onPress={showDatePicker}>
           <Text style={style.Datepicker}>Select DOB</Text>
         </Pressable>
-        {isDatePickerVisible && (
+        <DateTimePickerModal
+          isVisible={isDatePickerVisible}
+          mode="date"
+          onConfirm={handleConfirmDate}
+          onCancel={hideDatePicker}
+          maximumDate={new Date()}
+        />
+        {/* {isDatePickerVisible && (
           <DateTimePicker
             mode="date"
             display="spinner"
@@ -340,7 +422,7 @@ function RegistrationPage(prop: typeprop) {
             onChange={onChange}
             //onChange={changeDate}
             maximumDate={new Date()}></DateTimePicker>
-        )}
+        )} */}
         {/* {!isDatePickerVisible && (
           <Pressable onPress={showDatePicker}>
             <TextInput
@@ -354,6 +436,40 @@ function RegistrationPage(prop: typeprop) {
             </TextInput>
           </Pressable>
         )} */}
+      </View>
+      <View style={style.insideContainer}>
+        <Text style={style.inputTitle}>Upload Pic</Text>
+        <View style={{flexDirection: 'row'}}>
+          <TouchableOpacity
+            style={[style.uploadbutton]}
+            onPress={() => {
+              requestPermission();
+            }}>
+            <Text style={{color: '#fff'}}>Select Image</Text>
+          </TouchableOpacity>
+          {selectedImage !== '' && (
+            <Image
+              style={{height: 50, width: 100, marginBottom: 10}}
+              source={{uri: selectedImage}}></Image>
+          )}
+        </View>
+      </View>
+      <View>
+        {/* {selectedImage.length > 0 && (
+          <View style={{flexDirection: 'row', margin: 5}}>
+            {selectedImage.map((image, index) => (
+              <Image
+                key={index}
+                style={{height: 50, width: 100, marginBottom: 10}}
+                source={{uri: image}}
+              />
+            ))}
+            
+          </View>
+        )} */}
+        {/* <Image
+          style={{height: 50, width: 100, marginBottom: 10}}
+          source={{uri: selectedImage}}></Image> */}
       </View>
       <View style={style.styleView}>
         <TouchableOpacity
@@ -378,10 +494,19 @@ function RegistrationPage(prop: typeprop) {
 const width = Dimensions.get('window').width - 70;
 const style = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  uploadbutton: {
+    padding: 5,
+    borderRadius: 5,
+    marginBottom: 15,
+    marginRight: 70,
+    color: '#fff',
+    marginLeft: 0,
+    backgroundColor: '#039dfc',
   },
   insideContainer: {
     flexDirection: 'row',
@@ -404,7 +529,7 @@ const style = StyleSheet.create({
     fontWeight: 'bold',
     fontFamily: 'serif',
     fontSize: 15,
-    marginRight: 100,
+    marginRight: 50,
   },
   styleView: {
     flexDirection: 'row',
@@ -434,7 +559,6 @@ const style = StyleSheet.create({
     fontWeight: 'bold',
     fontFamily: 'sans-serif',
     fontSize: 25,
-    textAlign: 'center',
   },
   Datepicker: {
     padding: 5,
