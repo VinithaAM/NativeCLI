@@ -11,6 +11,7 @@ import {
   Alert,
   FlatList,
 } from 'react-native';
+import Modal from 'react-native-modal';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {enablePromise, openDatabase} from 'react-native-sqlite-storage';
 import SQLite from 'react-native-sqlite-storage';
@@ -198,17 +199,25 @@ function StorageImplementation() {
         setUserDetails(result), setConvertedDetails(result);
       });
       var filter = userDetails.filter(x => x.id == 2)[0];
-      const bytearray = JSON.stringify(filter.Profilepic);
-      //console.log(bytearray);
-      const charArray = Array.from(bytearray, (byte: any) =>
+      // const textEncoder = new TextEncoder();
+      //const byteArray = textEncoder.encode(filter.Profilepic);
+      const imgByte: number[] = filter.Profilepic.replace('"');
+      //console.log(byteArray);
+      const charArray = Array.from(imgByte, (byte: any) =>
         String.fromCharCode(byte),
       );
+
+      const imagesavepath = '../src/assets/image.jpg';
       const base64String = encode(charArray.join(''));
       console.log('data', base64String);
       setImagePath(`${RNFS.TemporaryDirectoryPath}/image.jpg`);
+
       RNFS.writeFile(imagePath, base64String, 'base64').then(() =>
         console.log('Image saved ' + imagePath),
       );
+      // <Modal animationIn="slideInUp" isVisible={imagePath !== ''}>
+      //   <View>{imagePath && <Image source={{uri: imagePath}}></Image>}</View>
+      // </Modal>;
 
       // userDetails.forEach(element => {
       //   var base64 = byteArrayToBase64([element.Profilepic]);
@@ -283,9 +292,19 @@ function StorageImplementation() {
           onPress={handleClear}>
           <Text style={{color: '#fff'}}> Clear</Text>
         </TouchableOpacity>
+        {/* <TouchableOpacity
+          style={[style.buttonClear, style.customButton]}
+          onPress={getUserdetails}>
+          <Text style={{color: '#fff'}}> Get</Text>
+        </TouchableOpacity> */}
       </View>
-      {isValid && userDetails.length > 0 && (
-        <View style={{flex: 0.75}}>
+      {imagePath !== '' && (
+        <Image
+          style={{height: 50, width: 100, marginBottom: 10}}
+          source={{uri: imagePath}}></Image>
+      )}
+      {/* {isValid && userDetails.length > 0 && (
+        <View style={{flex: 0.75, flexDirection: 'row'}}>
           {userDetails.map((x, index) => (
             <>
               <Text style={{fontSize: 15}} key={index}>
@@ -299,7 +318,7 @@ function StorageImplementation() {
             </>
           ))}
         </View>
-      )}
+      )} */}
     </View>
   );
 }

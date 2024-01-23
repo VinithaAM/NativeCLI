@@ -74,9 +74,7 @@ function LoginPage(prop: Proptype) {
   const oncancelhandle = () => {
     navigation.navigate('WelcomePage');
   };
-  const onhandlesample = () => {
-    navigation.navigate('samplePage');
-  };
+
   useEffect(() => {
     // createTable();
   }, []);
@@ -124,6 +122,7 @@ function LoginPage(prop: Proptype) {
       // alert("Please Provide Valid Password .....");
       // alert("Please Provide Valid UserName ....");
     }
+    navigation.navigate('FlatListPage');
   };
   const onHadleSignup = () => {
     navigation.navigate('RegistrationPage');
@@ -245,11 +244,7 @@ function LoginPage(prop: Proptype) {
               <Text style={style.buttonText}>SignUp for free</Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            style={[style.button, style.signup]}
-            onPress={onhandlesample}>
-            <Text style={style.buttonText}>Image Upload</Text>
-          </TouchableOpacity>
+
           <Text
             style={{color: '#103a9e', fontSize: 18}}
             onPress={onHandleForgetPassword}>

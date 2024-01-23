@@ -3,7 +3,10 @@ import {
   enablePromise,
   openDatabase,
 } from 'react-native-sqlite-storage';
-import {IUserDetails} from '../Components/HistoryDataCorrectionModel';
+import {
+  IHistoryDataCorrection,
+  IUserDetails,
+} from '../Components/HistoryDataCorrectionModel';
 
 // Enable promise for SQLite
 enablePromise(true);
@@ -40,10 +43,19 @@ export const createTables = async (db: SQLiteDatabase) => {
      Name TEXT,
       UserName TEXT,
       Profilepic BLOB)`;
+  const historyDataCorrection = `CREATE TABLE IF NOT EXISTS trtHistoryDataCorrections(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        TIMESTAMP TEXT NULL,
+        VALUE REAL NULL,
+        HISTORY_ID TEXT NULL,
+        STATUS_TAG TEXT NULL,
+        CorrectedValue REAL NULL
+      )`;
   try {
     await db.executeSql(userPreferencesQuery);
     await db.executeSql(contactsQuery);
     await db.executeSql(UserDetails);
+    await db.executeSql(historyDataCorrection);
   } catch (error) {
     console.error(error);
     throw Error(`Failed to create tables`);
@@ -63,6 +75,26 @@ export const addDetails = async (db: SQLiteDatabase, Param: any) => {
     throw Error('Failed to add details');
   }
 };
+export const addcorrectionDetails = async (db: SQLiteDatabase, Param: any) => {
+  const insertQuery = `
+     INSERT INTO trtHistoryDataCorrections (TIMESTAMP, VALUE, HISTORY_ID,STATUS_TAG,CorrectedValue)
+     VALUES (?, ?, ?,?,?)
+   `;
+  const values = [
+    Param.timeStamp,
+    Param.value,
+    Param.historyId,
+    Param.statusTags,
+    Param.value,
+  ];
+  try {
+    return db.executeSql(insertQuery, values);
+    //console.log('table created');
+  } catch (error) {
+    console.error(error);
+    throw Error('Failed to add details');
+  }
+};
 export const getDetails = async (db: SQLiteDatabase) => {
   try {
     const contacts: IUserDetails[] = [];
@@ -70,7 +102,24 @@ export const getDetails = async (db: SQLiteDatabase) => {
     results?.forEach(result => {
       for (let index = 0; index < result.rows.length; index++) {
         contacts.push(result.rows.item(index));
-        // console.log('aaa', result.rows.item(index));
+      }
+    });
+    return contacts;
+  } catch (error) {
+    console.error(error);
+    throw Error('Failed to get Contacts from database');
+  }
+};
+export const getCorrectionDetails = async (db: SQLiteDatabase) => {
+  try {
+    const contacts: IHistoryDataCorrection[] = [];
+    const results = await db.executeSql(
+      'SELECT * FROM trtHistoryDataCorrections',
+    );
+    results?.forEach(result => {
+      for (let index = 0; index < result.rows.length; index++) {
+        contacts.push(result.rows.item(index));
+        console.log('Data', contacts);
       }
     });
     return contacts;

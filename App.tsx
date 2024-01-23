@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {useCallback, useEffect} from 'react';
 import type {PropsWithChildren} from 'react';
-import {StyleSheet, Text, useColorScheme, View} from 'react-native';
+import {Alert, StyleSheet, Text, useColorScheme, View} from 'react-native';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import StackNavigation from './src/Screens/StackNavigation';
@@ -8,6 +8,14 @@ import {NavigationContainer} from '@react-navigation/native';
 import {PERMISSIONS} from 'react-native-permissions';
 import {PermissionsAndroid, Linking} from 'react-native';
 import {Button} from 'react-native-elements';
+import messaging, {firebase} from '@react-native-firebase/messaging';
+import PushNotification from 'react-native-push-notification';
+import {Notifications} from 'react-native-notifications';
+import {
+  NotificationListner,
+  requestuserpermission,
+} from './src/Services/push-notification';
+import {connectToDatabase, createTables} from './src/Services/Database';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -41,7 +49,48 @@ function Section({children, title}: SectionProps): JSX.Element {
 
 function App(): JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
+  const loadData = useCallback(async () => {
+    try {
+      const db = await connectToDatabase();
+      await createTables(db);
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+  useEffect(() => {
+    loadData();
+    NotificationListner();
+    requestuserpermission();
+    requestPermission();
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      if (remoteMessage.notification) {
+        Alert.alert(
+          'A new FCM message arrived!',
+          JSON.stringify(remoteMessage.notification?.body),
+        );
+      }
+      PushNotification.localNotification({
+        message: remoteMessage.notification?.body,
+        title: remoteMessage.notification?.title,
+        bigPictureUrl: remoteMessage.notification.android.imageUrl,
+        smallIcon: remoteMessage.notification.android.imageUrl,
+        // channelId: 'Default channel',
+      });
+      // PushNotification.localNotification({
+      //   message: remoteMessage.body,
+      //   title: remoteMessage.title,
+      //   channelId: 'Default channel',
+      //   //   // bigPictureUrl: remoteMessage.notification.android.imageUrl,
+      //   //   // smallIcon: remoteMessage.notification.android.imageUrl,
+      // });
+    });
+    return unsubscribe;
+  }, [loadData]);
+
   const requestPermission = async () => {
+    PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+    );
     console.log('helllo');
     const grand = await PermissionsAndroid.requestMultiple([
       //PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,

@@ -20,6 +20,9 @@ import {ScreenType} from './StackNavigation';
 import {AddNewItem, MasterHistoryData} from '../Services/CommonService';
 // import RNDateTimePicker from "@react-native-community/datetimepicker";
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import {MasterData} from '../Components/dummyData';
+import {IMasterName} from '../Components/HistoryDataCorrectionModel';
+import {addcorrectionDetails, connectToDatabase} from '../Services/Database';
 
 type typeprop = NativeStackScreenProps<ScreenType, 'AddNew'>;
 function AddNewPage(prop: typeprop) {
@@ -79,44 +82,52 @@ function AddNewPage(prop: typeprop) {
   //     showDatePicker();
   //   }
   // };
-  const onSaveFunction = () => {
+  const onSaveFunction = async () => {
     let params = {
       id: 0,
       historyId: historyId,
-      timeStamp: timeStamp,
+      timeStamp: timeStamp.toDateString(),
       value: correctionValue,
       statusTags: status,
       correctedValue: correctionValue,
       createdBy: 1,
     };
+    console.log('pa', params);
+    const db = await connectToDatabase();
     if (historyId != '' && correctionValue != '' && status != '') {
-      try {
-        AddNewItem(params)
-          .then((result: any) => {
-            if (result.data != null) {
-              navigation.navigate('FlatListPage');
-            }
-          })
-          .catch((error: any) => {
-            console.log('Error occurred', error);
-            navigation.navigate('LoginPage');
-          });
-      } catch (error) {
-        console.log('Error occured', error);
-        navigation.navigate('LoginPage');
-      }
+      addcorrectionDetails(db, params).then(result => {
+        console.log(result), navigation.navigate('FlatListPage');
+      });
+
+      // try {
+      //   AddNewItem(params)
+      //     .then((result: any) => {
+      //       if (result.data != null) {
+      //         navigation.navigate('FlatListPage');
+      //       }
+      //     })
+      //     .catch((error: any) => {
+      //       console.log('Error occurred', error);
+      //       navigation.navigate('LoginPage');
+      //     });
+      // } catch (error) {
+      //   console.log('Error occured', error);
+      //   navigation.navigate('LoginPage');
+      // }
     } else {
       Alert.alert('Please Fill the form');
     }
   };
+  var MasterValueData = MasterData;
   useEffect(() => {
     setTimeout(() => {
       masterDatafetch();
     }, 5000);
+    // setMasterValue(MasterData)
   }, []);
   const masterDatafetch = () => {
     MasterHistoryData().then(result => {
-      setLoading(true);
+      //setLoading(true);
       setMasterValue(result.data.data);
     });
   };
@@ -128,7 +139,7 @@ function AddNewPage(prop: typeprop) {
       // Perform any actions with the selected date
     }
   };
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   function LoadingAnimation() {
     return (
       <View style={style.indicatorWrapper}>
@@ -153,9 +164,17 @@ function AddNewPage(prop: typeprop) {
     settimeStamp(date);
     hideDatePicker();
   };
+  const onhandlesample = () => {
+    navigation.navigate('samplePage');
+  };
   return (
     <>
       <View style={style.container}>
+        <TouchableOpacity
+          style={[style.buttonupload, style.customButton]}
+          onPress={onhandlesample}>
+          <Text style={{color: '#fff'}}>Image Upload</Text>
+        </TouchableOpacity>
         {loading ? (
           <View style={style.modalView}>
             <Text style={style.textTitle}>Add New Details</Text>
@@ -175,7 +194,7 @@ function AddNewPage(prop: typeprop) {
                 selectedTextStyle={style.selectedTextStyle}
                 inputSearchStyle={style.inputSearchStyle}
                 iconStyle={style.iconStyle}
-                data={masterValue}
+                data={MasterValueData}
                 search
                 maxHeight={300}
                 labelField="historyId"
@@ -339,6 +358,12 @@ const style = StyleSheet.create({
   buttonCancel: {
     backgroundColor: '#147EFB',
     textAlign: 'center',
+    alignItems: 'flex-end',
+  },
+  buttonupload: {
+    backgroundColor: '#147EFB',
+    textAlign: 'center',
+    alignSelf: 'flex-end',
   },
   customButton: {
     padding: 10,

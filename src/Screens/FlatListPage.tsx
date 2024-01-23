@@ -15,6 +15,7 @@ import {useFocusEffect} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Accordions from './Accordions';
+import {connectToDatabase, getCorrectionDetails} from '../Services/Database';
 
 type Proptype = NativeStackScreenProps<ScreenType, 'FlatListPage'>;
 function DataCorrectionListPage(prop: Proptype) {
@@ -22,18 +23,22 @@ function DataCorrectionListPage(prop: Proptype) {
   const {navigation} = prop;
   const [columns, setColumns] = useState(1);
   const [ListData, setListData] = useState([]);
-  const getHistoryData = () => {
+  const getHistoryData = async () => {
     try {
-      getHistoryCorrection()
-        .then((result: any) => {
-          if (result.data.status == 'Success') {
-            setListData(result.data.data);
-          }
-        })
-        .catch((error: any) => {
-          console.log('Error occurred', error);
-          navigation.navigate('LoginPage');
-        });
+      const db = await connectToDatabase();
+      getCorrectionDetails(db).then((result: any) => {
+        setListData(result);
+      });
+      // getHistoryCorrection()
+      //   .then((result: any) => {
+      //     if (result.data.status == 'Success') {
+      //       setListData(result.data.data);
+      //     }
+      //   })
+      //   .catch((error: any) => {
+      //     console.log('Error occurred', error);
+      //     navigation.navigate('LoginPage');
+      //   });
     } catch (error) {
       console.log('Error occured', error);
     }

@@ -437,7 +437,7 @@ function RegistrationPage(prop: typeprop) {
           </Pressable>
         )} */}
       </View>
-      <View style={style.insideContainer}>
+      {/* <View style={style.insideContainer}>
         <Text style={style.inputTitle}>Upload Pic</Text>
         <View style={{flexDirection: 'row'}}>
           <TouchableOpacity
@@ -453,7 +453,7 @@ function RegistrationPage(prop: typeprop) {
               source={{uri: selectedImage}}></Image>
           )}
         </View>
-      </View>
+      </View> */}
       <View>
         {/* {selectedImage.length > 0 && (
           <View style={{flexDirection: 'row', margin: 5}}>

@@ -287,7 +287,7 @@ function Accordions(props: {title: any}) {
           }></ScrollView>
         <View style={style.innerContainer}>
           <View style={style.bodycontainer}>
-            <Text style={style.title}>{selectedItem.historyId} </Text>
+            <Text style={style.title}>{selectedItem.HISTORY_ID} </Text>
             {/* <AntDesign
               name={viewModalVisible ? "downcircle" : "rightcircle"}
               size={24}
@@ -319,7 +319,7 @@ function Accordions(props: {title: any}) {
               }}>
               MasterName :
             </Text>
-            <Text> {selectedItem.historyId} </Text>
+            <Text> {selectedItem.HISTORY_ID} </Text>
           </View>
           <View style={style.textContainer}>
             <Text
@@ -331,7 +331,7 @@ function Accordions(props: {title: any}) {
               TimeStamp :
             </Text>
             <Text>
-              {selectedItem.timeStamp}
+              {selectedItem.TIMESTAMP}
               {/* {format(new Date(selectedItem.timeStamp), 'dd/MM/yyyy HH:mm')} */}
             </Text>
           </View>
@@ -344,7 +344,7 @@ function Accordions(props: {title: any}) {
               }}>
               Status :
             </Text>
-            <Text> {selectedItem.statusTags}</Text>
+            <Text> {selectedItem.STATUS_TAG}</Text>
           </View>
           <View style={style.textContainer}>
             <Text
@@ -355,7 +355,7 @@ function Accordions(props: {title: any}) {
               }}>
               Value :
             </Text>
-            <Text> {selectedItem.correctedValue}</Text>
+            <Text> {selectedItem.CorrectedValue}</Text>
           </View>
           <View style={style.buttonContainer}>
             {/* <Pressable
@@ -364,7 +364,7 @@ function Accordions(props: {title: any}) {
             >
               <Text style={{ color: "#fff", fontWeight: "bold" }}>Close</Text>
             </Pressable> */}
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={[style.buttonLogin, style.customButton]}
               onPress={() => onClickEdit(selectedItem)}>
               <Text style={{color: '#fff', fontWeight: 'bold'}}>Edit</Text>
@@ -373,7 +373,7 @@ function Accordions(props: {title: any}) {
               style={[style.buttonDelete, style.customButton]}
               onPress={() => onClickDelete(selectedItem)}>
               <Text style={{color: '#fff', fontWeight: 'bold'}}>Delete</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
       )}
