@@ -30,9 +30,15 @@ function ForgetPassword(prop: Proptype) {
     setUserName('');
     setPassword('');
   };
-
+  const [isValid, setIsValidEmail] = useState<boolean>(true);
+  function validateEmail(input: any) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isValidEmail = emailRegex.test(input);
+    setIsValidEmail(isValidEmail);
+  }
   const onChangeUsername = (e: any) => {
     setUserName(e);
+    validateEmail(e);
     setIsUserNameEmpty(false);
   };
   const oncancelhandle = () => {
@@ -109,7 +115,11 @@ function ForgetPassword(prop: Proptype) {
             value={userName}
             onChangeText={onChangeUsername}
             maxLength={30}></TextInput>
-
+          {!isValid && (
+            <View style={style.errorMessage}>
+              <Text style={style.errorText}>Please Enter Proper Email</Text>
+            </View>
+          )}
           <View style={style.styleView}>
             <TouchableOpacity
               style={[style.buttonLogin, style.customButton]}

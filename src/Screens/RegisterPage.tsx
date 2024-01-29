@@ -26,6 +26,7 @@ import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import ImagePicker from 'react-native-image-crop-picker';
 // import { MaterialCommunityIcons } from "@expo/vector-icons/";
 import {PermissionsAndroid, Linking} from 'react-native';
+import {addUserDetails, connectToDatabase} from '../Services/Database';
 
 type typeprop = NativeStackScreenProps<ScreenType, 'RegistrationPage'>;
 function RegistrationPage(prop: typeprop) {
@@ -98,9 +99,6 @@ function RegistrationPage(prop: typeprop) {
       (password === '' && dob === null)
     ) {
       res = true;
-      setIsFirstNameEmpty(true);
-      setIsUserNameEmpty(true);
-      setPasswordEmpty(true);
     } else {
       res = false;
     }
@@ -109,7 +107,7 @@ function RegistrationPage(prop: typeprop) {
   const oncancelhandle = () => {
     navigation.navigate('LoginPage');
   };
-  const onSaveClick = () => {
+  const onSaveClick = async () => {
     let params = {
       id: 0,
       firstName: firstName,
@@ -122,31 +120,38 @@ function RegistrationPage(prop: typeprop) {
     console.log(params);
     if (firstName != '' && email != '' && password != '') {
       console.log(params);
+      const db = await connectToDatabase();
       try {
-        register(params)
-          .then((result: any) => {
-            if (result.data != null) {
-              // toast.success("Register Successfully...", {
-              //   position: "top-right",
-              //   autoClose: 3000,
-              //   style: {
-              //     backgroundColor: "lightgreen",
-              //     color: "white",
-              //   },
-              // });
-              navigation.navigate('LoginPage');
-            }
-          })
-          .catch((error: any) => {
-            console.log('Error occurred', error.message);
-            navigation.navigate('LoginPage');
-          });
+        addUserDetails(db, params).then(result => {
+          console.log(result), navigation.navigate('LoginPage');
+        });
+        // register(params)
+        //   .then((result: any) => {
+        //     if (result.data != null) {
+        //       // toast.success("Register Successfully...", {
+        //       //   position: "top-right",
+        //       //   autoClose: 3000,
+        //       //   style: {
+        //       //     backgroundColor: "lightgreen",
+        //       //     color: "white",
+        //       //   },
+        //       // });
+        //       navigation.navigate('LoginPage');
+        //     }
+        //   })
+        //   .catch((error: any) => {
+        //     console.log('Error occurred', error.message);
+        //     navigation.navigate('LoginPage');
+        //   });
       } catch (error: any) {
         console.log('Error occured', error.message);
         navigation.navigate('LoginPage');
       }
     } else {
       notifyMessage('Please Fill detail in the form....');
+      setIsFirstNameEmpty(true);
+      setIsUserNameEmpty(true);
+      setPasswordEmpty(true);
     }
   };
 
@@ -192,7 +197,7 @@ function RegistrationPage(prop: typeprop) {
   const [isUserNameEmpty, setIsUserNameEmpty] = useState(false);
   const validatePassword = (password: any) => {
     // Password policies
-    const minLength = 8;
+    const minLength = 7;
     const maxLength = 20;
     const hasUppercase = /[A-Z]/.test(password);
     const hasLowercase = /[a-z]/.test(password);
@@ -200,17 +205,28 @@ function RegistrationPage(prop: typeprop) {
     const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
 
     // Check against policies
-    if (password.length < minLength || password.length > maxLength) {
-      setValidationMessage('Password must be between 8 and 20 characters');
-    } else if (!hasUppercase || !hasLowercase) {
+    // if (password.length <= minLength || password.length >= maxLength) {
+    //   setValidationMessage('Password must be between 8 and 20 characters');
+    // } else if (!hasUppercase || !hasLowercase) {
+    //   setValidationMessage(
+    //     'Password must contain both uppercase and lowercase letters',
+    //   );
+    // } else if (!hasNumber) {
+    //   setValidationMessage('Password must contain at least one number');
+    // } else if (!hasSpecialChar) {
+    //   setValidationMessage(
+    //     'Password must contain at least one special character',
+    //   );
+    if (
+      password.length <= minLength ||
+      password.length >= maxLength ||
+      !hasUppercase ||
+      !hasLowercase ||
+      !hasNumber ||
+      !hasSpecialChar
+    ) {
       setValidationMessage(
-        'Password must contain both uppercase and lowercase letters',
-      );
-    } else if (!hasNumber) {
-      setValidationMessage('Password must contain at least one number');
-    } else if (!hasSpecialChar) {
-      setValidationMessage(
-        'Password must contain at least one special character',
+        'Password must be between 8 and 20 characters and uppercase and lowercase letters and at least one number and at least one special character ',
       );
     } else {
       setValidationMessage('Password is valid');
@@ -231,48 +247,48 @@ function RegistrationPage(prop: typeprop) {
     hideDatePicker();
   };
   const [selectedImage, setselectedImage] = useState('');
-  const ImagePicker = () => {
-    let Options = {
-      path: 'image',
-      multiple: true,
-      includeBase64: false,
-      maxHeight: 200,
-      maxWidth: 200,
-    };
-    console.log(images);
-    if (images === true) {
-      launchCamera(Options, response => {
-        console.log(response);
-        if (response.didCancel) {
-          console.warn('User cancelled image picker');
-        } else if (response.assets) {
-          setselectedImage(response?.assets[0]?.uri);
-        }
-      });
-    } else {
-      launchImageLibrary(Options, response => {
-        console.log(response);
-        if (response.didCancel) {
-          console.warn('User cancelled image picker');
-        } else if (response.assets) {
-          setselectedImage(response?.assets[0]?.uri);
-        }
-        console.log('images', selectedImage);
-      });
-    }
+  // const ImagePicker = () => {
+  //   let Options = {
+  //     path: 'image',
+  //     multiple: true,
+  //     includeBase64: false,
+  //     maxHeight: 200,
+  //     maxWidth: 200,
+  //   };
+  //   console.log(images);
+  //   if (images === true) {
+  //     launchCamera(Options, response => {
+  //       console.log(response);
+  //       if (response.didCancel) {
+  //         console.warn('User cancelled image picker');
+  //       } else if (response.assets) {
+  //         setselectedImage(response?.assets[0]?.uri);
+  //       }
+  //     });
+  //   } else {
+  //     launchImageLibrary(Options, response => {
+  //       console.log(response);
+  //       if (response.didCancel) {
+  //         console.warn('User cancelled image picker');
+  //       } else if (response.assets) {
+  //         setselectedImage(response?.assets[0]?.uri);
+  //       }
+  //       console.log('images', selectedImage);
+  //     });
+  //   }
 
-    // if (response.didCancel) {
-    //   console.log('User cancelled image picker');
-    // } else if (response.error) {
-    //   console.log('ImagePicker Error: ', response.error);
-    // } else if (response.assets) {
-    //   // Handle selected images
-    //   const selectedImages = response.assets.map(asset => asset.uri);
-    //   setselectedImage(selectedImages);
-    // }
-    // console.log('images', selectedImage);
-    // });
-  };
+  //   // if (response.didCancel) {
+  //   //   console.log('User cancelled image picker');
+  //   // } else if (response.error) {
+  //   //   console.log('ImagePicker Error: ', response.error);
+  //   // } else if (response.assets) {
+  //   //   // Handle selected images
+  //   //   const selectedImages = response.assets.map(asset => asset.uri);
+  //   //   setselectedImage(selectedImages);
+  //   // }
+  //   // console.log('images', selectedImage);
+  //   // });
+  // };
   // const imagepickermulti = () => {
   //   const options = {
   //     multiple: true,
@@ -291,18 +307,18 @@ function RegistrationPage(prop: typeprop) {
   //   }, 5000);
   // }, []);
   const [images, setImages] = useState(false);
-  const requestPermission = async () => {
-    const grand = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.CAMERA,
-    );
-    console.log('granted', grand);
-    if (grand == 'granted') {
-      setImages(true);
-      await ImagePicker();
-    } else {
-      await ImagePicker();
-    }
-  };
+  // const requestPermission = async () => {
+  //   const grand = await PermissionsAndroid.request(
+  //     PermissionsAndroid.PERMISSIONS.CAMERA,
+  //   );
+  //   console.log('granted', grand);
+  //   if (grand == 'granted') {
+  //     setImages(true);
+  //     await ImagePicker();
+  //   } else {
+  //     await ImagePicker();
+  //   }
+  // };
 
   return (
     <View style={style.container}>

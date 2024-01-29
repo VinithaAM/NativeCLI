@@ -47,6 +47,15 @@ export interface IUserDetails {
   UserName: string;
   Profilepic: string;
 }
+export interface ILoginDetails {
+  id: number;
+  DOB: string;
+  FirstName: string;
+  LastName: string;
+  PassWord: string;
+  STATUS: number;
+  UserName: string;
+}
 export const DataList: IHistoryDataCorrection = {
   id: 1,
   historyId: '/Hawkesbury/WM101_N19_Volume',

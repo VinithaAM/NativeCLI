@@ -83,10 +83,13 @@ function AddNewPage(prop: typeprop) {
   //   }
   // };
   const onSaveFunction = async () => {
+    var Da = new Date();
+    console.log('Date', Da);
+    console.log('picked', timeStamp);
     let params = {
       id: 0,
       historyId: historyId,
-      timeStamp: timeStamp.toDateString(),
+      timeStamp: timeStamp,
       value: correctionValue,
       statusTags: status,
       correctedValue: correctionValue,
@@ -119,12 +122,12 @@ function AddNewPage(prop: typeprop) {
     }
   };
   var MasterValueData = MasterData;
-  useEffect(() => {
-    setTimeout(() => {
-      masterDatafetch();
-    }, 5000);
-    // setMasterValue(MasterData)
-  }, []);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     masterDatafetch();
+  //   }, 5000);
+  //   // setMasterValue(MasterData)
+  // }, []);
   const masterDatafetch = () => {
     MasterHistoryData().then(result => {
       //setLoading(true);
@@ -161,11 +164,12 @@ function AddNewPage(prop: typeprop) {
 
   const handleConfirmDate = (date: any) => {
     var newDate = new Date(date);
+
     settimeStamp(date);
     hideDatePicker();
   };
   const onhandlesample = () => {
-    navigation.navigate('samplePage');
+    navigation.navigate('storage');
   };
   return (
     <>

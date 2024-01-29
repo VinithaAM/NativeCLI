@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 // import Toast from 'react-native-toast';
 import {
   TextInput,
@@ -16,25 +16,24 @@ import {
   Platform,
   Alert,
   Linking,
+  Pressable,
+  Clipboard,
+  ScrollView,
 } from 'react-native';
 // import { MaterialCommunityIcons } from "@expo/vector-icons/";
-import {login} from '../Services/CommonService';
+// import {logins} from '../Services/CommonService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {ScreenType} from './StackNavigation';
+// import {AntDesign} from '@expo/vector-icons';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import Modal from 'react-native-modal';
+import {useFocusEffect} from '@react-navigation/native';
+import JailMonkey from 'jail-monkey';
+import {connectToDatabase, login} from '../Services/Database';
 
 type Proptype = NativeStackScreenProps<ScreenType, 'LoginPage'>;
 
-// const db = openDatabase(
-//   {
-//     name: 'ApplicationDB',
-//     location: 'default',
-//   },
-//   () => {},
-//   error => {
-//     console.log(error);
-//   },
-// );
 function LoginPage(prop: Proptype) {
   const {navigation} = prop;
   const [userName, setUserName] = useState('');
@@ -42,22 +41,9 @@ function LoginPage(prop: Proptype) {
   const [isPasswordSecure, setIsPasswordSecure] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  // const createTable = () => {
-  //   db.transaction(tnx => {
-  //     tnx.executeSql(
-  //       'CREATE TABLE IF NOT EXISTS ' +
-  //         'UserDetails' +
-  //         '(Id INTEGER PRIMARY KEY AUTOINCREMENT,Name TEXT, UserName TEXT,Profilepic BLOB)',
-  //     ),
-  //       [],
-  //       (result: any) => {
-  //         console.log('Table Created Successfully');
-  //       },
-  //       (error: any) => {
-  //         console.log('Create table error', error);
-  //       };
-  //   });
-  // };
+  useEffect(() => {
+    TokenFetch();
+  }, [Token]);
   const onPressClear = () => {
     setUserName('');
     setPassword('');
@@ -75,10 +61,16 @@ function LoginPage(prop: Proptype) {
     navigation.navigate('WelcomePage');
   };
 
-  useEffect(() => {
-    // createTable();
-  }, []);
-  const loginfuntion = () => {
+  const TokenFetch = async () => {
+    var token = await AsyncStorage.getItem('Token');
+    setToken(token);
+  };
+  useFocusEffect(
+    useCallback(() => {
+      TokenFetch();
+    }, [Token]),
+  );
+  const loginfuntion = async () => {
     setLoading(true);
     var loginDetails = {
       userName: userName,
@@ -90,30 +82,43 @@ function LoginPage(prop: Proptype) {
       password != undefined &&
       password != ''
     ) {
-      login(loginDetails)
-        .then(result => {
-          if (result.data.status === 'Failed') {
-            setLoading(false);
-            //Toast.show(result.data.message, Toast.SHORT);
-            Alert.alert(result.data.message);
-          } else if (result.data.status === 'Success') {
-            AsyncStorage.setItem(
-              'LoginResponse',
+      const db = await connectToDatabase();
+      login(db, loginDetails).then(result => {
+        console.log(result);
+        if (result.length > 0) {
+          navigation.navigate('FlatListPage');
+          setUserName('');
+          setPassword('');
+        } else {
+          notifyMessage('User account Not Found');
+        }
+        //console.log(result.length>0),
+      });
+      setLoading(false);
+      // login(loginDetails)
+      //   .then(result => {
+      //     if (result.data.status === 'Failed') {
+      //       setLoading(false);
+      //       //Toast.show(result.data.message, Toast.SHORT);
+      //       Alert.alert(result.data.message);
+      //     } else if (result.data.status === 'Success') {
+      //       AsyncStorage.setItem(
+      //         'LoginResponse',
 
-              result.data.data.token,
-            );
+      //         result.data.data.token,
+      //       );
 
-            setUserName('');
-            setPassword('');
-            setLoading(false);
-            navigation.navigate('FlatListPage');
-          }
-        })
-        .catch((error: any) => {
-          setLoading(false);
-          console.log('Error occurred', error);
-          // Handle the error here (e.g., show error message, perform error-related actions)
-        });
+      //       setUserName('');
+      //       setPassword('');
+      //       setLoading(false);
+      //       navigation.navigate('FlatListPage');
+      //     }
+      //   })
+      //   .catch((error: any) => {
+      //     setLoading(false);
+      //     console.log('Error occurred', error);
+      //     // Handle the error here (e.g., show error message, perform error-related actions)
+      //   });
     } else {
       setLoading(false);
       setIsUserNameEmpty(true);
@@ -122,7 +127,7 @@ function LoginPage(prop: Proptype) {
       // alert("Please Provide Valid Password .....");
       // alert("Please Provide Valid UserName ....");
     }
-    navigation.navigate('FlatListPage');
+    //navigation.navigate('FlatListPage');
   };
   const onHadleSignup = () => {
     navigation.navigate('RegistrationPage');
@@ -176,6 +181,19 @@ function LoginPage(prop: Proptype) {
       Alert.alert(msg);
     }
   }
+  const [openMessage, setOpenMessage] = useState<Boolean>(false);
+  const [Token, setToken] = useState('');
+  const hideEditModal = () => {
+    setOpenMessage(false);
+  };
+  const handleCopyPress = async () => {
+    try {
+      await Clipboard.setString(Token);
+      console.log('Text copied to clipboard:', Token);
+    } catch (error) {
+      console.error('Error copying to clipboard:', error);
+    }
+  };
   return (
     <>
       {loading ? (
@@ -211,7 +229,8 @@ function LoginPage(prop: Proptype) {
               onChangeText={onChangePassword}
               onKeyPress={validatePassword}
 
-              // right={
+              //</View>right={
+
               //   <TextInput.Icon
               //     name={() => <MaterialCommunityIcons name={isPasswordSecure ? "eye-off" : "eye"} size={28} color="black" />} // where <Icon /> is any component from vector-icons or anything else
               //     onPress={() => { isPasswordSecure ? setIsPasswordSecure(false) : setIsPasswordSecure(true) }}
@@ -253,14 +272,45 @@ function LoginPage(prop: Proptype) {
           {/* Linking.openURL('http://google.com') */}
         </View>
       )}
-      <View></View>
+      <View>
+        {/* <TouchableOpacity
+          style={[style.message]}
+          onPress={() => setOpenMessage(true)}>
+          <Text style={style.buttonText}>Token</Text>
+        </TouchableOpacity> */}
+      </View>
+      {openMessage && (
+        <View>
+          <Modal
+            animationIn="slideInLeft"
+            isVisible={openMessage}
+            onBackdropPress={hideEditModal}>
+            <View style={style.modalView}>
+              <Text style={{margin: 10}}>{Token}</Text>
+              <View style={{flexDirection: 'row'}}>
+                <Pressable
+                  style={[style.customButton, style.copyButton]}
+                  onPress={handleCopyPress}>
+                  <Text style={{color: '#fff'}}>Copy</Text>
+                </Pressable>
+
+                <Pressable
+                  style={[style.buttonClear, style.customButton]}
+                  onPress={hideEditModal}>
+                  <Text style={{color: '#fff'}}>Close</Text>
+                </Pressable>
+              </View>
+            </View>
+          </Modal>
+        </View>
+      )}
     </>
   );
 }
 const width = Dimensions.get('window').width - 70;
 const style = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     // backgroundColor: "aqua",
@@ -291,6 +341,12 @@ const style = StyleSheet.create({
     backgroundColor: '#147EFB',
     textAlign: 'center',
   },
+  modalView: {
+    flexGrow: 0.2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+  },
   customButton: {
     padding: 15,
     borderRadius: 5,
@@ -306,7 +362,10 @@ const style = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
   },
-
+  copyButton: {
+    backgroundColor: '#a86d32',
+    textAlign: 'center',
+  },
   buttonClear: {
     backgroundColor: '#131413',
     textAlign: 'center',
@@ -320,6 +379,12 @@ const style = StyleSheet.create({
   },
   signup: {
     backgroundColor: '#4267B2',
+  },
+  message: {
+    backgroundColor: '#adaba8',
+    alignSelf: 'flex-end',
+    padding: 20,
+    margin: 20,
   },
   button: {
     width: '40%',

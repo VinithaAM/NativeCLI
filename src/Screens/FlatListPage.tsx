@@ -72,7 +72,7 @@ function DataCorrectionListPage(prop: Proptype) {
   }
 
   const onHandleSignout = () => {
-    AsyncStorage.clear();
+    //AsyncStorage.clear();
     navigation.navigate('LoginPage');
   };
 

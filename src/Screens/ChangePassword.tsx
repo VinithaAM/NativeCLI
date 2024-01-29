@@ -39,19 +39,30 @@ function ChangePassword() {
     const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
 
     // Check against policies
-    if (password.length < minLength || password.length > maxLength) {
-      setValidationMessage('Password must be between 8 and 20 characters');
-    } else if (!hasUppercase || !hasLowercase) {
+    if (
+      password.length <= minLength ||
+      password.length >= maxLength ||
+      !hasUppercase ||
+      !hasLowercase ||
+      !hasNumber ||
+      !hasSpecialChar
+    ) {
       setValidationMessage(
-        'Password must contain both uppercase and lowercase letters',
+        'Password must be between 8 and 20 characters and uppercase and lowercase letters and at least one number and at least one special character ',
       );
-    } else if (!hasNumber) {
-      setValidationMessage('Password must contain at least one number');
-    } else if (!hasSpecialChar) {
-      setValidationMessage(
-        'Password must contain at least one special character',
-      );
-    } else {
+    }
+    //else if (!hasUppercase || !hasLowercase) {
+    //   setValidationMessage(
+    //     'Password must contain both uppercase and lowercase letters',
+    //   );
+    // } else if (!hasNumber) {
+    //   setValidationMessage('Password must contain at least one number');
+    // } else if (!hasSpecialChar) {
+    //   setValidationMessage(
+    //     'Password must contain at least one special character',
+    //   );
+    // }
+    else {
       setValidationMessage('Password is valid');
     }
   };
@@ -73,12 +84,12 @@ function ChangePassword() {
           ]}
           value={password}
           secureTextEntry={isPasswordSecure}
-          maxLength={30}
+          maxLength={20}
           onChangeText={handleChangepassword}
           onKeyPress={validatePassword}></TextInput>
         <Icon
           name={isPasswordSecure ? 'facebook' : 'eye'}
-          size={25}
+          size={20}
           color="black"
           style={{position: 'absolute', top: 8, right: 10}}
           onPress={() =>

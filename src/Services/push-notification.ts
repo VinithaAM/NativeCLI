@@ -17,14 +17,16 @@ async function GetToken() {
     try {
       let token = await messaging().getToken();
       if (token) {
-        console.log('new token', token);
         console.warn('token', token);
-        await AsyncStorage.setItem('NewToken', token);
+        await AsyncStorage.setItem('Token', token);
+        console.log('new', token);
       } else {
       }
     } catch (error) {
       console.log('Error in fetchtoken', error);
     }
+    let fcmToken = await AsyncStorage.getItem('Token');
+    console.log('NewToken', fcmToken);
   }
 }
 export const NotificationListner = () => {

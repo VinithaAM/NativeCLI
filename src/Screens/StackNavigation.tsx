@@ -12,6 +12,7 @@ import ForgetPassword from './ForgetPassword';
 import OtpScreen from './OtpScreen';
 import ChangePassword from './ChangePassword';
 import StorageImplementation from './StorageImplementation';
+import JailMonkey from './Jail-Monkey';
 
 export type ScreenType = {
   LoginPage: undefined;
@@ -22,6 +23,7 @@ export type ScreenType = {
   ForgetPassword: undefined;
   OTPPage: undefined;
   ChangePassword: undefined;
+  storage: undefined | any;
   samplePage: undefined | any;
 };
 const Stack = createNativeStackNavigator<ScreenType>();
@@ -37,8 +39,7 @@ function StackNavigation() {
           fontWeight: 'bold', // Customize the font style
         },
       }}>
-      {/* <Stack.Screen name="WelcomePage" component={WelcomePage} /> */}
-      {/* <Stack.Screen name="WelcomePage" component={WelcomePage} /> */}
+      <Stack.Screen name="samplePage" component={JailMonkey} />
       <Stack.Screen
         name="LoginPage"
         component={LoginPage}
@@ -91,8 +92,17 @@ function StackNavigation() {
           headerTintColor: 'black',
         }}
       />
-      <Stack.Screen name="samplePage" component={StorageImplementation} />
-      {/* <Stack.Screen name="Accordion" component={Accordions} /> */}
+      <Stack.Screen
+        name="storage"
+        component={StorageImplementation}
+        options={{
+          headerTitle: 'Back',
+          headerStyle: {
+            backgroundColor: 'lightblue',
+          },
+          headerTintColor: 'black',
+        }}
+      />
     </Stack.Navigator>
   );
 }

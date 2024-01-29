@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import type {PropsWithChildren} from 'react';
 import {Alert, StyleSheet, Text, useColorScheme, View} from 'react-native';
 
@@ -62,6 +62,7 @@ function App(): JSX.Element {
     NotificationListner();
     requestuserpermission();
     requestPermission();
+
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       if (remoteMessage.notification) {
         Alert.alert(
@@ -69,13 +70,33 @@ function App(): JSX.Element {
           JSON.stringify(remoteMessage.notification?.body),
         );
       }
+
       PushNotification.localNotification({
         message: remoteMessage.notification?.body,
         title: remoteMessage.notification?.title,
-        bigPictureUrl: remoteMessage.notification.android.imageUrl,
-        smallIcon: remoteMessage.notification.android.imageUrl,
+        bigPictureUrl: remoteMessage.notification?.android?.imageUrl,
+        smallIcon: remoteMessage.notification?.android?.imageUrl,
         // channelId: 'Default channel',
       });
+      // Notifications.events().registerNotificationReceivedForeground(
+      //   (notification, completion) => {
+      //     console.log('Notification Received - Foreground', notification);
+      //     // Display local notification
+      //     Notifications.postLocalNotification({
+      //       title: notification.title,
+      //       body: notification.body,
+      //       sound: 'default',
+      //       silent: false,
+      //       category: '',
+      //       userInfo: {},
+      //       // id: notification.id,
+      //     });
+      //     completion({alert: true, sound: true, badge: true});
+      //   },
+      // );
+
+      // // Register for remote notifications (FCM)
+      // Notifications.registerRemoteNotifications();
       // PushNotification.localNotification({
       //   message: remoteMessage.body,
       //   title: remoteMessage.title,
@@ -84,6 +105,11 @@ function App(): JSX.Element {
       //   //   // smallIcon: remoteMessage.notification.android.imageUrl,
       // });
     });
+    // PushNotification.register();
+    // return () => {
+    //   // Clean up
+    //   PushNotification.unregister();
+    // };
     return unsubscribe;
   }, [loadData]);
 
@@ -91,17 +117,16 @@ function App(): JSX.Element {
     PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
     );
-    console.log('helllo');
-    const grand = await PermissionsAndroid.requestMultiple([
-      //PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-      PermissionsAndroid.PERMISSIONS.CAMERA,
-      PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-      // PermissionsAndroid.PERMISSIONS.PUSH_NOTIFICATIONS,
-      //PermissionsAndroid.PERMISSIONS.ACCESS_FILE_LOCATION,
-    ]);
-    console.log('granted', grand);
-    return grand;
+    // const grand = await PermissionsAndroid.requestMultiple([
+    //   //PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+    //   PermissionsAndroid.PERMISSIONS.CAMERA,
+    //   PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+    //   PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+    //   // PermissionsAndroid.PERMISSIONS.PUSH_NOTIFICATIONS,
+    //   //PermissionsAndroid.PERMISSIONS.ACCESS_FILE_LOCATION,
+    // ]);
+    // console.log('granted', grand);
+    // return grand;
   };
   return (
     // <SafeAreaView style={backgroundStyle}>
