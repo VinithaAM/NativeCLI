@@ -25,6 +25,7 @@ export type ScreenType = {
   ChangePassword: undefined;
   storage: undefined | any;
   samplePage: undefined | any;
+  ViewModel: undefined | any;
 };
 const Stack = createNativeStackNavigator<ScreenType>();
 function StackNavigation() {
@@ -96,7 +97,18 @@ function StackNavigation() {
         name="storage"
         component={StorageImplementation}
         options={{
-          headerTitle: 'Back',
+          headerTitle: 'Profile',
+          headerStyle: {
+            backgroundColor: 'lightblue',
+          },
+          headerTintColor: 'black',
+        }}
+      />
+      <Stack.Screen
+        name="ViewModel"
+        component={ViewModelData}
+        options={{
+          headerTitle: 'ViewProfileDetails',
           headerStyle: {
             backgroundColor: 'lightblue',
           },

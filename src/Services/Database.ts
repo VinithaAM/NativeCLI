@@ -43,7 +43,7 @@ export const createTables = async (db: SQLiteDatabase) => {
     id INTEGER PRIMARY KEY AUTOINCREMENT,
      Name TEXT,
       UserName TEXT,
-      Profilepic BLOB)`;
+      Profilepic TEXT)`;
   const historyDataCorrection = `CREATE TABLE IF NOT EXISTS trtHistoryDataCorrections(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         TIMESTAMP NUMERIC NULL,
@@ -62,6 +62,7 @@ export const createTables = async (db: SQLiteDatabase) => {
         STATUS NUMERIC NULL
       )`;
   try {
+    //await db.executeSql('DROP TABLE UserDetails');
     await db.executeSql(userPreferencesQuery);
     await db.executeSql(contactsQuery);
     await db.executeSql(UserDetails);

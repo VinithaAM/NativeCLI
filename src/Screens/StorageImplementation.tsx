@@ -26,29 +26,19 @@ import {
 import {IUserDetails} from '../Components/HistoryDataCorrectionModel';
 import {useFocusEffect} from '@react-navigation/native';
 import Sample from './Jail-Monkey';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {ScreenType} from './StackNavigation';
 
 SQLite.enablePromise(true);
-
-function StorageImplementation() {
-  // const db = SQLite.openDatabase(
-  //   {
-  //     name: 'ApplicationDB',
-  //     location: 'default',
-  //   },
-
-  //   () => {
-  //     console.log('db created');
-  //   },
-  //   error => {
-  //     console.log(error);
-  //   },
-  // );
+type typeprop = NativeStackScreenProps<ScreenType, 'storage'>;
+function StorageImplementation(prop: typeprop) {
+  const {navigation} = prop;
   const [isFirstNameEmpty, setIsFirstNameEmpty] = useState(false);
   const [firstName, setfirstName] = useState('');
   const [isUserNameEmpty, setIsUserNameEmpty] = useState(false);
   const [email, setEmail] = useState('');
   const [isValid, setIsValidEmail] = useState<boolean>(true);
-  const [profilePicture, setProfilePicture] = useState<Uint8Array | null>(null);
+  const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [userDetails, setUserDetails] = useState([]);
   function handleChangefirstname(event: any) {
     const value = event;
@@ -75,7 +65,7 @@ function StorageImplementation() {
     let Options = {
       path: 'image',
       multiple: true,
-      includeBase64: false,
+      includeBase64: true,
       maxHeight: 200,
       maxWidth: 200,
     };
@@ -86,7 +76,8 @@ function StorageImplementation() {
           console.warn('User cancelled image picker');
         } else if (response.assets) {
           setselectedImage(response?.assets[0]?.uri);
-          convertToByteArray(selectedImage);
+          //convertToByteArray(selectedImage);
+          setProfilePicture(response?.assets[0]?.base64);
         }
       });
     } else {
@@ -96,6 +87,7 @@ function StorageImplementation() {
           console.warn('User cancelled image picker');
         } else if (response.assets) {
           setselectedImage(response?.assets[0]?.uri);
+          setProfilePicture(Options.includeBase64);
           // console.log(selectedImage);
           convertToByteArray(response?.assets[0]?.uri);
         }
@@ -108,7 +100,7 @@ function StorageImplementation() {
     let Options = {
       path: 'image',
       multiple: true,
-      includeBase64: false,
+      includeBase64: true,
       maxHeight: 200,
       maxWidth: 200,
     };
@@ -120,7 +112,8 @@ function StorageImplementation() {
           console.warn('User cancelled image picker');
         } else if (response.assets) {
           setselectedImage(response?.assets[0]?.uri);
-          convertToByteArray(selectedImage);
+          setProfilePicture(Options.includeBase64);
+          //convertToByteArray(selectedImage);
         }
       });
     } else {
@@ -130,8 +123,9 @@ function StorageImplementation() {
           console.warn('User cancelled image picker');
         } else if (response.assets) {
           setselectedImage(response?.assets[0]?.uri);
+          setProfilePicture(Options.includeBase64);
           // console.log(selectedImage);
-          convertToByteArray(response?.assets[0]?.uri);
+          //convertToByteArray(response?.assets[0]?.uri);
         }
       });
     }
@@ -154,7 +148,7 @@ function StorageImplementation() {
     if (firstName != '' && email != '') {
       try {
         addDetails(db, params).then(result => console.log(result));
-        getUserdetails();
+        // getUserdetails();
         handleClear();
         setIsValid(true);
       } catch {
@@ -188,10 +182,11 @@ function StorageImplementation() {
     if (image) {
       const imagePath = `${image}`;
       const imageBase64 = await RNFS.readFile(imagePath, 'base64');
+      console.log('base', imageBase64);
       if (imageBase64) {
         const byteArray = base64ToByteArray(imageBase64);
 
-        setProfilePicture(byteArray);
+        setProfilePicture(imageBase64);
       }
     }
   };
@@ -204,66 +199,65 @@ function StorageImplementation() {
     return byteArray;
   }
   function byteArrayToBase64(byteArray: any) {
-    // console.log('byte', byteArray);
     const charArray = Array.from(byteArray, (byte: any) =>
       String.fromCharCode(byte),
     );
-
     const base64String = encode(charArray.join(''));
-
     return base64String;
   }
   const [convertedDetails, setConvertedDetails] = useState([]);
   const [imagePath, setImagePath] = useState('');
   const [imageforDisplay, setImageforDisplay] = useState(false);
-  const [base64string, setbase64string] = useState('');
+  const [base64stringImage, setbase64string] = useState<string>('');
   const getUserdetails = async () => {
-    const db = await connectToDatabase();
-    setImageforDisplay(true);
-    try {
-      getDetails(db).then((result: any) => {
-        setUserDetails(result), setConvertedDetails(result);
-      });
-      var filter = userDetails.filter(x => x.id == 1)[0];
-      // const textEncoder = new TextEncoder();
-      //const byteArray = textEncoder.encode(filter.Profilepic);
-      const imgByte: number[] = filter.Profilepic.replace('"');
-      //console.log(imgByte);
-      const charArray = Array.from(imgByte, (byte: any) =>
-        String.fromCharCode(byte),
-      );
+    navigation.navigate('ViewModel');
+    // const db = await connectToDatabase();
+    // setImageforDisplay(true);
+    // try {
+    //   getDetails(db).then((result: any) => {
+    //     setUserDetails(result), setConvertedDetails(result);
+    //   });
+    //   var filter = userDetails.filter(x => x.id == 2)[0];
+    //   // const textEncoder = new TextEncoder();
+    //   //const byteArray = textEncoder.encode(filter.Profilepic);
+    //   const imgByte: number[] = filter.Profilepic.replace('"');
+    //   //console.log(imgByte);
+    //   const charArray = Array.from(imgByte, (byte: any) =>
+    //     String.fromCharCode(byte),
+    //   );
 
-      const imagesavepath = '../src/assets/image.jpg';
-      const base64String = encode(charArray.join(''));
-      setbase64string(base64String);
-      // console.log('data', base64String);
-      // setImagePath(`file://${RNFS.TemporaryDirectoryPath}/image.jpg`);
+    //   const imagesavepath = '../src/assets/image.jpg';
+    //   const base64String = encode(charArray.join(''));
+    //   setbase64string(filter.Profilepic);
+    //   console.log('data', base64stringImage);
+    // setImagePath(`file://${RNFS.TemporaryDirectoryPath}/image.jpg`);
 
-      RNFS.writeFile(imagePath, base64String, 'base64').then(() =>
-        console.log('Image saved ' + imagePath),
-      );
-      // <Modal animationIn="slideInUp" isVisible={imagePath !== ''}>
-      //   <View>{imagePath && <Image source={{uri: imagePath}}></Image>}</View>
-      // </Modal>;
+    // RNFS.writeFile(imagePath, base64String, 'base64').then(() =>
+    //   console.log('Image saved ' + imagePath),
+    // );
+    // <Modal animationIn="slideInUp" isVisible={imagePath !== ''}>
+    //   <View>{imagePath && <Image source={{uri: imagePath}}></Image>}</View>
+    // </Modal>;
 
-      // userDetails.forEach(element => {
-      //   var base64 = byteArrayToBase64([element.Profilepic]);
-      //   //console.log('base', base64);
-      //   convertedDetails.forEach(ele => {
-      //     if ((ele.id = element.id)) {
-      //       ele.Profilepic = base64;
-      //     }
-      //   });
-      // });
+    // userDetails.forEach(element => {
+    //   var base64 = byteArrayToBase64([element.Profilepic]);
+    //   //console.log('base', base64);
+    //   convertedDetails.forEach(ele => {
+    //     if ((ele.id = element.id)) {
+    //       ele.Profilepic = base64;
+    //     }
+    //   });
+    // });
 
-      //console.log('user', userDetails);
-    } catch {
-      (error: any) => console.log(error);
-    }
+    //console.log('user', userDetails);
+    // } catch {
+    //   (error: any) => console.log(error);
+    // }
   };
 
   return (
     <View style={style.container}>
+      <Text style={{fontSize: 25, color: 'blue'}}>Profile</Text>
       <Text style={style.inputTitle}>Firstname</Text>
       <TextInput
         placeholder="Enter the Firstame"
@@ -325,37 +319,23 @@ function StorageImplementation() {
           <Text style={{color: '#fff'}}> Get</Text>
         </TouchableOpacity>
       </View>
-      {/* {imageforDisplay && imagePath !== '' && (
-        <Image
-          style={{height: 50, width: 50, marginBottom: 10}}
-          source={{uri: imagePath}}></Image>
-      )} */}
-      <Image
-        source={{uri: `data:image/png;base64,${base64string}`}}
+      {/* <Image
+        source={{uri: `data:image/png;base64,${base64stringImage}`}}
         style={{width: 50, height: 50}}
-      />
-      {/* {isValid && userDetails.length > 0 && (
-        <View style={{flex: 0.75, flexDirection: 'row'}}>
-          {userDetails.map((x, index) => (
-            <>
-              <Text style={{fontSize: 15}} key={index}>
-                {x.Name} - {x.UserName}
-              </Text>
-              {imagePath !== '' && (
-                <Image
-                  style={{height: 50, width: 100, marginBottom: 10}}
-                  source={{uri: imagePath}}></Image>
-              )}
-            </>
-          ))}
-        </View>
-      )} */}
+      /> */}
+      <View>
+        <Image
+          source={{
+            uri: `data:image/png;base64,${base64stringImage}`,
+          }}
+          style={{width: 50, height: 50}}></Image>
+      </View>
     </View>
   );
 }
 
 export default StorageImplementation;
-const width = Dimensions.get('window').width - 70;
+const width = Dimensions.get('window').width - 90;
 const style = StyleSheet.create({
   container: {
     flexGrow: 1.5,
