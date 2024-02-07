@@ -120,29 +120,29 @@ function RegistrationPage(prop: typeprop) {
     console.log(params);
     if (firstName != '' && email != '' && password != '') {
       console.log(params);
-      const db = await connectToDatabase();
+      // const db = await connectToDatabase();
       try {
-        addUserDetails(db, params).then(result => {
-          console.log(result), navigation.navigate('LoginPage');
-        });
-        // register(params)
-        //   .then((result: any) => {
-        //     if (result.data != null) {
-        //       // toast.success("Register Successfully...", {
-        //       //   position: "top-right",
-        //       //   autoClose: 3000,
-        //       //   style: {
-        //       //     backgroundColor: "lightgreen",
-        //       //     color: "white",
-        //       //   },
-        //       // });
-        //       navigation.navigate('LoginPage');
-        //     }
-        //   })
-        //   .catch((error: any) => {
-        //     console.log('Error occurred', error.message);
-        //     navigation.navigate('LoginPage');
-        //   });
+        // addUserDetails(db, params).then(result => {
+        //   console.log(result), navigation.navigate('LoginPage');
+        // });
+        register(params)
+          .then((result: any) => {
+            if (result.data != null) {
+              // toast.success("Register Successfully...", {
+              //   position: "top-right",
+              //   autoClose: 3000,
+              //   style: {
+              //     backgroundColor: "lightgreen",
+              //     color: "white",
+              //   },
+              // });
+              navigation.navigate('LoginPage');
+            }
+          })
+          .catch((error: any) => {
+            console.log('Error occurred', error.message);
+            navigation.navigate('LoginPage');
+          });
       } catch (error: any) {
         console.log('Error occured', error.message);
         navigation.navigate('LoginPage');
@@ -235,7 +235,7 @@ function RegistrationPage(prop: typeprop) {
   function notifyMessage(msg: string) {
     if (Platform.OS === 'android') {
       Alert.alert(msg);
-      //ToastAndroid.show(msg, ToastAndroid.SHORT);
+      ToastAndroid.show(msg, ToastAndroid.SHORT);
     } else {
       Alert.alert(msg);
     }
@@ -352,7 +352,7 @@ function RegistrationPage(prop: typeprop) {
         value={email}
         keyboardType="email-address"
         autoCapitalize="none"
-        maxLength={30}
+        maxLength={50}
         onChangeText={handleChangeemail}></TextInput>
       {!isValid && (
         <View style={style.errorMessage}>

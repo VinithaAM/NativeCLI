@@ -2,23 +2,96 @@ import {
   NativeStackNavigationProp,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
-import React from 'react';
-import {Dimensions, StyleSheet, Text, TouchableOpacity} from 'react-native';
+import React, { RefObject, useEffect, useRef, useState } from 'react';
+import {Alert, Dimensions, StyleSheet, Text, ToastAndroid, TouchableOpacity} from 'react-native';
 import {View} from 'react-native';
-import OTPTextView from 'react-native-otp-textinput';
+import OTPTextView from '@twotalltotems/react-native-otp-input';
 import {ScreenType} from './StackNavigation';
+import { validateOTP } from '../Services/CommonService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import OtpInputs from 'react-native-otp-inputs';
 
 type Proptype = NativeStackScreenProps<ScreenType, 'OTPPage'>;
 function OtpScreen(prop: Proptype) {
   const {navigation} = prop;
+  const[Otp,setOtp]=useState("");
+  const[id,setId]=useState(0);
+  useEffect(()=>{
+    userDetails()
+  },[])
+  const userDetails = async ()=>{
+    const token = await AsyncStorage.getItem('UserDetails');
+    const userId=JSON.parse(token).id
+     setId(userId)
+  }
   const onHandleresend = () => {};
+  const handleOtpChange =(e:any)=>{
+      setOtp(e)
+  }
   const onhandleSubmit = () => {
-    navigation.navigate('ChangePassword');
+    var loginDetails = {
+      Id: id,
+      OTP:Otp
+    };
+    if (id != 0 && Otp != '') {
+      validateOTP(loginDetails)
+        .then(result => {
+          if (result.data.status === 'Failed') {
+           // setLoading(false);
+            ToastAndroid.show(result.data.message, ToastAndroid.SHORT);
+           // Toast.show(result.message, Toast.SHORT);
+            Alert.alert(result.data.message);
+          } else if (result.data.status === 'Success') {
+            //setLoading(false);
+            navigation.navigate('ChangePassword');
+          }
+        })
+        .catch((error: any) => {
+          //setLoading(false);
+          console.log('Error occurred', error);
+        });
+    } else {
+      //setLoading(false);
+      ToastAndroid.show("Please Provide Valid OTP", ToastAndroid.SHORT);
+      // Toast.show(result.message, Toast.SHORT);
+       Alert.alert("Please Provide Valid OTP");
+    }
+   // navigation.navigate('ChangePassword');
   };
   return (
     <View style={style.container}>
       <Text style={style.textTitle}> Please Enter One time Password</Text>
-      <OTPTextView></OTPTextView>
+      <View style={{flexDirection:"row"}}></View>
+      <OtpInputs
+       handleChange={handleOtpChange}
+       numberOfInputs={4}
+       style={style.input}
+       clearTextOnFocus
+          // handleChange={(code) => console.log(code)}
+          // keyboardType="number-pad"
+          // numberOfInputs={1}
+          // selectTextOnFocus={true}
+          // ref={otpRef}
+        />
+          {/* <OtpInputs
+      style={style.input}
+          handleChange={(code) => console.log(code)}
+          keyboardType="phone-pad"
+          numberOfInputs={1}
+          maxLength={1}
+        /> */}
+     
+    
+      {/* <OTPTextView
+       style={{ width: '50%', height: 50 }}
+       pinCount={4}
+       autoFocusOnLoad
+       keyboardType='number-pad'
+       codeInputFieldStyle={{ width: 30, height: 15 }}
+       codeInputHighlightStyle={{ borderColor: 'black' }}
+       onCodeFilled ={handleOtpChange}
+       onCodeChanged={handleOtpChange}
+      ></OTPTextView> */}
       <View style={{flexDirection: 'row'}}>
         <TouchableOpacity
           style={[style.buttonLogin, style.customButton]}
@@ -45,6 +118,18 @@ const style = StyleSheet.create({
     flex: 0.75,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  input: {
+     borderWidth: 1,
+     borderColor: 'gray',
+     borderRadius: 5,
+     width: 120,
+    // height: 40,
+    marginHorizontal: 5,
+    marginLeft:5,
+    textAlign: 'center',
+    fontSize: 16,
+    flexDirection:"row"
   },
   textInput: {
     borderWidth: 2,
@@ -79,7 +164,7 @@ const style = StyleSheet.create({
   buttonLogin: {
     backgroundColor: '#077a0b',
     textAlign: 'center',
-    width: '20%',
+    width: '25%',
     height: 50,
     borderRadius: 10,
     alignItems: 'center',

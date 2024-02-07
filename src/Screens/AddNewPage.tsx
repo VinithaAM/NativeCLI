@@ -65,7 +65,6 @@ function AddNewPage(prop: typeprop) {
     if (regex.test(e) || e === '') {
       setcorrectionValue(e);
     }
-    //setcorrectionValue(e);
   }
   const [date, setDate] = useState(new Date());
 
@@ -84,8 +83,6 @@ function AddNewPage(prop: typeprop) {
   // };
   const onSaveFunction = async () => {
     var Da = new Date();
-    console.log('Date', Da);
-    console.log('picked', timeStamp);
     let params = {
       id: 0,
       historyId: historyId,
@@ -95,44 +92,46 @@ function AddNewPage(prop: typeprop) {
       correctedValue: correctionValue,
       createdBy: 1,
     };
-    console.log('pa', params);
-    const db = await connectToDatabase();
+    console.log('param', params);
+    // const db = await connectToDatabase();
     if (historyId != '' && correctionValue != '' && status != '') {
-      addcorrectionDetails(db, params).then(result => {
-        console.log(result), navigation.navigate('FlatListPage');
-      });
+      // addcorrectionDetails(db, params).then(result => {
+      //   console.log(result), navigation.navigate('FlatListPage');
+      // });
 
-      // try {
-      //   AddNewItem(params)
-      //     .then((result: any) => {
-      //       if (result.data != null) {
-      //         navigation.navigate('FlatListPage');
-      //       }
-      //     })
-      //     .catch((error: any) => {
-      //       console.log('Error occurred', error);
-      //       navigation.navigate('LoginPage');
-      //     });
-      // } catch (error) {
-      //   console.log('Error occured', error);
-      //   navigation.navigate('LoginPage');
-      // }
+      try {
+        AddNewItem(params)
+          .then((result: any) => {
+            if (result.data != null) {
+              navigation.navigate('FlatListPage');
+            }
+          })
+          .catch((error: any) => {
+            console.log('Error occurred', error);
+            navigation.navigate('LoginPage');
+          });
+      } catch (error) {
+        console.log('Error occured', error);
+        navigation.navigate('LoginPage');
+      }
     } else {
       Alert.alert('Please Fill the form');
     }
   };
-  var MasterValueData = MasterData;
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     masterDatafetch();
-  //   }, 5000);
-  //   // setMasterValue(MasterData)
-  // }, []);
+  // var MasterValueData = MasterData;
+  useEffect(() => {
+    setTimeout(() => {
+      masterDatafetch();
+    }, 5000);
+  }, []);
   const masterDatafetch = () => {
     MasterHistoryData().then(result => {
-      //setLoading(true);
+      setLoading(true);
       setMasterValue(result.data.data);
-    });
+    }).catch((error: any) => {
+      console.log('Error occurred', error);
+      navigation.navigate('LoginPage');
+    });;
   };
   const onChangeDate = (selectedDate: any) => {
     setShowDatePicker(Platform.OS === 'ios');
@@ -142,7 +141,7 @@ function AddNewPage(prop: typeprop) {
       // Perform any actions with the selected date
     }
   };
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   function LoadingAnimation() {
     return (
       <View style={style.indicatorWrapper}>
@@ -163,9 +162,19 @@ function AddNewPage(prop: typeprop) {
   };
 
   const handleConfirmDate = (date: any) => {
+    //console.log("time",date)
     var newDate = new Date(date);
-
-    settimeStamp(date);
+    console.log("date",date)
+    
+    const formattedTime = newDate
+   // toISOString();
+    // undefined, {
+    //   hour: '2-digit',
+    //   minute: '2-digit',
+    //   hour12: false, // Ensure that the time is displayed in 12-hour format (AM/PM)
+    // }
+    console.log("time",newDate,formattedTime)
+    settimeStamp(newDate);
     hideDatePicker();
   };
   const onhandlesample = () => {
@@ -174,12 +183,14 @@ function AddNewPage(prop: typeprop) {
   return (
     <>
       <View style={style.container}>
-        <TouchableOpacity
+        
+        {loading ? (
+          <>
+          <TouchableOpacity
           style={[style.buttonupload, style.customButton]}
           onPress={onhandlesample}>
           <Text style={{color: '#fff'}}>Image Upload</Text>
         </TouchableOpacity>
-        {loading ? (
           <View style={style.modalView}>
             <Text style={style.textTitle}>Add New Details</Text>
             {/* <View style={style.insideContainer}> */}
@@ -198,7 +209,7 @@ function AddNewPage(prop: typeprop) {
                 selectedTextStyle={style.selectedTextStyle}
                 inputSearchStyle={style.inputSearchStyle}
                 iconStyle={style.iconStyle}
-                data={MasterValueData}
+                data={masterValue}
                 search
                 maxHeight={300}
                 labelField="historyId"
@@ -300,6 +311,7 @@ function AddNewPage(prop: typeprop) {
               </TouchableOpacity>
             </View>
           </View>
+          </>
         ) : (
           <LoadingAnimation />
         )}

@@ -11,6 +11,7 @@ import {
   Alert,
   Linking,
   Image,
+  ToastAndroid,
 } from 'react-native';
 import {forgetPassword, login} from '../Services/CommonService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -50,13 +51,18 @@ function ForgetPassword(prop: Proptype) {
       userName: userName,
     };
     if (userName != undefined && userName != '') {
-      forgetPassword(loginDetails)
+      forgetPassword(userName)
         .then(result => {
           if (result.data.status === 'Failed') {
             setLoading(false);
-            //Toast.show(result.data.message, Toast.SHORT);
+            ToastAndroid.show(result.data.message, ToastAndroid.SHORT);
+           // Toast.show(result.message, Toast.SHORT);
             Alert.alert(result.data.message);
           } else if (result.data.status === 'Success') {
+            AsyncStorage.setItem(
+              'UserDetails',
+              JSON.stringify(result.data.data),
+            );
             setLoading(false);
             navigation.navigate('OTPPage');
           }
@@ -70,7 +76,7 @@ function ForgetPassword(prop: Proptype) {
       setIsUserNameEmpty(true);
       notifyMessage('Please Provide Valid Username .....');
     }
-    navigation.navigate('OTPPage');
+   // navigation.navigate('OTPPage');
   };
   const onHadleback = () => {
     navigation.navigate('LoginPage');
@@ -114,7 +120,7 @@ function ForgetPassword(prop: Proptype) {
             ]}
             value={userName}
             onChangeText={onChangeUsername}
-            maxLength={30}></TextInput>
+            maxLength={50}></TextInput>
           {!isValid && (
             <View style={style.errorMessage}>
               <Text style={style.errorText}>Please Enter Proper Email</Text>

@@ -3,7 +3,7 @@ import axios, {AxiosRequestConfig} from 'axios';
 
 //apiSerive for login
 
-const url = 'https://mysampleproject.azurewebsites.net/api';
+const url = 'https://testsampleenergyapi.azurewebsites.net/api';
 //const token = await AsyncStorage.getItem("LoginResponse");
 const headers = {
   'Content-Type': 'application/json',
@@ -168,8 +168,51 @@ export const forgetPassword = async (email: any) => {
     headers: headers,
   };
   try {
-    const result = await axios.delete(
-      url + `/Login/ForgetPassowrd?email=${email}`,
+    console.log("email",email)
+    const result = await axios.get(
+      url + `/Login/ForgetPassword?Mail=${email}`,
+      requestConfig,
+    );
+    return result;
+  } catch (error: any) {
+    return error.response.data;
+  }
+};
+export const validateOTP = async (otp: any) => {
+  const token = await AsyncStorage.getItem('LoginResponse');
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+    // Accept: "application/json",
+  };
+  const requestConfig: AxiosRequestConfig = {
+    headers: headers,
+  };
+  try {
+    console.log("email",otp)
+    const result = await axios.get(
+      url + `/Login/ValidateOTP?Id=${otp.Id}&otp=${otp.OTP}`,
+      requestConfig,
+    );
+    return result;
+  } catch (error: any) {
+    return error.response.data;
+  }
+};
+export const changePassword = async (obj: any) => {
+  const token = await AsyncStorage.getItem('LoginResponse');
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
+    // Accept: "application/json",
+  };
+  const requestConfig: AxiosRequestConfig = {
+    headers: headers,
+  };
+  try {
+    console.log("email",obj)
+    const result = await axios.get(
+      url + `/Login/ChangePassword?Id=${obj.Id}&password=${obj.password}&userName=${obj.userName}`,
       requestConfig,
     );
     return result;

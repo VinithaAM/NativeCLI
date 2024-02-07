@@ -1,17 +1,25 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+  Alert,
   Dimensions,
   StyleSheet,
   Text,
   TextInput,
+  ToastAndroid,
   TouchableOpacity,
   View,
 } from 'react-native';
 //import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 // import {Icon} from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { changePassword } from '../Services/CommonService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { ScreenType } from './StackNavigation';
 
-function ChangePassword() {
+type Proptype =NativeStackScreenProps<ScreenType,"ChangePassword">
+function ChangePassword(prop:Proptype) {
+  const{navigation}=prop
   const [passwordsMatch, setPasswordsMatch] = useState(true);
   const [password, setPassword] = useState('');
   const [confirmPassword, setconfirmPassword] = useState('');
@@ -66,7 +74,53 @@ function ChangePassword() {
       setValidationMessage('Password is valid');
     }
   };
-  const onhandleSave = () => {};
+  const[id,setId]=useState(0);
+  const[userName, setUsername]=useState('')
+  useEffect(()=>{
+    userDetails()
+  },[])
+  const userDetails = async ()=>{
+    const UserDetails = await AsyncStorage.getItem('UserDetails');
+    const userId=JSON.parse(UserDetails).id
+    const UserName=JSON.parse(UserDetails).userName
+     setId(userId)
+     setUsername(UserName)
+  }
+  const onhandleSave = () => {
+    var res={
+      Id:id,
+      password:password,
+      userName:userName
+    }
+    try{
+      if(password !="" && password != undefined && userName !="" && userName !=undefined){
+        changePassword(res).then((result:any)=>{
+            if(result.data.status=="Failed"){
+              ToastAndroid.show(result.data.message,ToastAndroid.LONG)
+              Alert.alert(result.data.message)
+            }
+            else if(result.data.status=="Success"){
+              ToastAndroid.show(result.data.message,ToastAndroid.LONG)
+              navigation.navigate("LoginPage")
+                AsyncStorage.removeItem("UserDetails")
+                // clear("UserDetails");
+               navigation.navigate('LoginPage');
+            }
+        }).catch((error:any)=>
+        console.log('Error occured', error.message)
+        )
+      }
+     else{
+      ToastAndroid.show("Please provide password details....",ToastAndroid.LONG)
+      Alert.alert("Please provide password details....")
+     }
+    }
+    catch(error:any){
+      console.log('Error occured', error.message);
+      navigation.navigate('LoginPage');
+    }
+    
+  };
   const onHandleClear = () => {
     setPassword('');
     setconfirmPassword('');

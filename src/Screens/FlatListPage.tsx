@@ -25,20 +25,20 @@ function DataCorrectionListPage(prop: Proptype) {
   const [ListData, setListData] = useState([]);
   const getHistoryData = async () => {
     try {
-      const db = await connectToDatabase();
-      getCorrectionDetails(db).then((result: any) => {
-        setListData(result);
-      });
-      // getHistoryCorrection()
-      //   .then((result: any) => {
-      //     if (result.data.status == 'Success') {
-      //       setListData(result.data.data);
-      //     }
-      //   })
-      //   .catch((error: any) => {
-      //     console.log('Error occurred', error);
-      //     navigation.navigate('LoginPage');
-      //   });
+      // const db = await connectToDatabase();
+      // getCorrectionDetails(db).then((result: any) => {
+      //   setListData(result);
+      // });
+      getHistoryCorrection()
+        .then((result: any) => {
+          if (result.data.status == 'Success') {
+            setListData(result.data.data);
+          }
+        })
+        .catch((error: any) => {
+          console.log('Error occurred', error);
+          navigation.navigate('LoginPage');
+        });
     } catch (error) {
       console.log('Error occured', error);
     }

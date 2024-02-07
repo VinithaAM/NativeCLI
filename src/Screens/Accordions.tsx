@@ -66,7 +66,7 @@ function Accordions(props: {title: any}) {
     setViewModalVisible(!viewModalVisible);
     setIsExpand(!isExpand);
   };
-  var MasterValueData = MasterData;
+  // var MasterValueData = MasterData;
   const masterDatafetch = () => {
     MasterHistoryData().then(result => {
       setMasterValue(result.data.data);
@@ -134,32 +134,32 @@ function Accordions(props: {title: any}) {
     };
     console.log('param', params);
     try {
-      const db = await connectToDatabase();
-      updatecorrectionDetails(db, params).then(result => {
-        const final = result.find(x => x.rowsAffected == 1);
-        if (final?.rowsAffected == 1) {
-          setEditModalVisible(false);
-          correctionDatafetch();
-        }
-        console.log('ta', final);
-      });
-      // updateCorrectionDetails(params)
-      //   .then((result: any) => {
-      //     if (result.data.status == 'Success') {
-      //       Alert.alert('Update SuccessFully');
-      //       correctionDatafetch();
-      //       //setRefreshDate(new Date());
-      //       onRefresh();
-      //
-      //       // setSelectedItem(result.data.data);
-      //       // navigation.navigate("FlatListPage");
-      //       setEditModalVisible(false);
-      //     }
-      //   })
-      //   .catch((error: any) => {
-      //     console.log('Error occurred', error);
-      //     // navigation.navigate('LoginPage');
-      //   });
+      // const db = await connectToDatabase();
+      // updatecorrectionDetails(db, params).then(result => {
+      //   const final = result.find(x => x.rowsAffected == 1);
+      //   if (final?.rowsAffected == 1) {
+      //     setEditModalVisible(false);
+      //     correctionDatafetch();
+      //   }
+      //   console.log('ta', final);
+      // });
+      updateCorrectionDetails(params)
+        .then((result: any) => {
+          if (result.data.status == 'Success') {
+            Alert.alert('Update SuccessFully');
+            correctionDatafetch();
+            //setRefreshDate(new Date());
+            onRefresh();
+      
+            // setSelectedItem(result.data.data);
+            // navigation.navigate("FlatListPage");
+            setEditModalVisible(false);
+          }
+        })
+        .catch((error: any) => {
+          console.log('Error occurred', error);
+          // navigation.navigate('LoginPage');
+        });
     } catch (error) {
       console.log('Error occured', error);
       // navigation.navigate('LoginPage');
@@ -173,23 +173,24 @@ function Accordions(props: {title: any}) {
   const onConfirm = async (e: any) => {
     //console.log('Data', e);
     try {
-      const db = await connectToDatabase();
-      await deletecorrectionDetails(db, e.id).then(result =>
-        getCorrectionDetails(db),
-      );
-      // deleteCorrection(e.id)
-      //   .then((result: any) => {
-      //     if (result.data.status == 'Success') {
-      //       Alert.alert('Deleted Successfully');
-      //       correctionDatafetch();
-      //       //setRefreshDate(new Date());
-      //       setViewModalVisible(false);
-      //     }
-      //   })
-      //   .catch((error: any) => {
-      //     console.log('Error occurred', error);
-      //     // navigation.navigate('LoginPage');
-      //   });
+      // const db = await connectToDatabase();
+      // await deletecorrectionDetails(db, e.id).then(result =>
+      //   getCorrectionDetails(db),
+      // );
+      deleteCorrection(e.id)
+        .then((result: any) => {
+          if (result.data.status == 'Success') {
+            Alert.alert('Deleted Successfully');
+            correctionDatafetch();
+            //setRefreshDate(new Date());
+            setViewModalVisible(false);
+            setIsExpand(false)
+          }
+        })
+        .catch((error: any) => {
+          console.log('Error occurred', error);
+          // navigation.navigate('LoginPage');
+        });
     } catch (error) {
       console.log('Error occured', error);
       // navigation.navigate('LoginPage');
@@ -225,54 +226,48 @@ function Accordions(props: {title: any}) {
   const onClickEdit = (item: any) => {
     setLoading(true);
     setEditModalVisible(true);
-    //masterDatafetch();
-    // sethistoryId(item.historyId);
+    masterDatafetch();
+    sethistoryId(item.historyId);
 
-    // setDate(new Date(item.timeStamp));
-    // setstatus(item.statusTags);
-    // setcorrectionValue(item.correctedValue);
-    // setSelectedItem(item);
-    // settimeStamp(item.timeStamp);
-    sethistoryId(item.HISTORY_ID);
-    setstatus(item.STATUS_TAG);
-    setcorrectionValue(item.CorrectedValue);
-    settimeStamp(item.TIMESTAMP);
+    setDate(new Date(item.timeStamp));
+    setstatus(item.statusTags);
+    setcorrectionValue(item.correctedValue);
     setSelectedItem(item);
+    settimeStamp(item.timeStamp);
+    // sethistoryId(item.HISTORY_ID);
+    // setstatus(item.STATUS_TAG);
+    // setcorrectionValue(item.CorrectedValue);
+    // settimeStamp(item.TIMESTAMP);
+    // setSelectedItem(item);
   };
   const correctionDatafetch = async () => {
-    const db = await connectToDatabase();
-    getCorrectionDetails(db).then((result: any) => {
-      console.log(result);
-      if (result.length > 0) {
-        console.log('se', selectedItem);
-        var filter = result.filter((x: any) => x.id == selectedItem.id)[0];
-        if (filter) {
-          setSelectedItem(filter);
-        }
-        console.log('filter', filter);
-      }
-    });
-    // getHistoryCorrection().then(result => {
-    //   if ((result.data.status = 'Success')) {
-    //     //setSelectedItem(result.data.data);
-    //     props = result.data.data;
-    //     // if (selectedItem.historyId == result.data.data.historyId) {
-    //     var filtereted = result.data.data.filter(
-    //       (x: any) => x.historyId == selectedItem.historyId,
-    //       // &&
-    //       // x.statusTags == selectedItem.statusTags
-    //       //&&
-    //       //x.correctedValue == selectedItem.correctedValue
-    //     )[0];
-    //     console.log('filter', filtereted);
-    //     if (filtereted) {
-    //       setSelectedItem(filtereted);
+    // const db = await connectToDatabase();
+    // getCorrectionDetails(db).then((result: any) => {
+    //   console.log(result);
+    //   if (result.length > 0) {
+    //     console.log('se', selectedItem);
+    //     var filter = result.filter((x: any) => x.id == selectedItem.id)[0];
+    //     if (filter) {
+    //       setSelectedItem(filter);
     //     }
-    //     // setSelectedItem(filtereted);
-    //     // }
-    //     console.log('after', selectedItem);
+    //     console.log('filter', filter);
     //   }
     // });
+    getHistoryCorrection().then(result => {
+      if ((result.data.status = 'Success')) {
+        props = result.data.data;
+        var filtereted = result.data.data.filter(
+          (x: any) => x.historyId == selectedItem.historyId)[0];
+        if (filtereted) {
+          setSelectedItem(filtereted);
+        }
+        // var filter = result.filter((x: any) => x.id == selectedItem.id)[0];
+        // if (filter) {
+        //   setSelectedItem(filter);
+        // }
+        // console.log('filter', filter);
+      }
+    });
   };
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = useCallback(() => {
@@ -327,7 +322,7 @@ function Accordions(props: {title: any}) {
           }></ScrollView>
         <View style={style.innerContainer}>
           <View style={style.bodycontainer}>
-            <Text style={style.title}>{selectedItem.HISTORY_ID} </Text>
+            <Text style={style.title}>{selectedItem.historyId} </Text>
             {/* <AntDesign
               name={viewModalVisible ? "downcircle" : "rightcircle"}
               size={24}
@@ -359,7 +354,7 @@ function Accordions(props: {title: any}) {
               }}>
               MasterName :
             </Text>
-            <Text> {selectedItem.HISTORY_ID} </Text>
+            <Text> {selectedItem.historyId} </Text>
           </View>
           <View style={style.textContainer}>
             <Text
@@ -371,8 +366,8 @@ function Accordions(props: {title: any}) {
               TimeStamp :
             </Text>
             <Text>
-              {format(selectedItem.TIMESTAMP, 'dd/MM/yyyy HH:mm')}
-              {/* {format(new Date(selectedItem.timeStamp), 'dd/MM/yyyy HH:mm')} */}
+              {/* {format(selectedItem.TIMESTAMP, 'dd/MM/yyyy HH:mm')} */}
+              {format(new Date(selectedItem.timeStamp), 'dd/MM/yyyy HH:mm')}
             </Text>
           </View>
           <View style={style.textContainer}>
@@ -384,7 +379,7 @@ function Accordions(props: {title: any}) {
               }}>
               Status :
             </Text>
-            <Text> {selectedItem.STATUS_TAG}</Text>
+            <Text> {selectedItem.statusTags}</Text>
           </View>
           <View style={style.textContainer}>
             <Text
@@ -395,7 +390,7 @@ function Accordions(props: {title: any}) {
               }}>
               Value :
             </Text>
-            <Text> {selectedItem.CorrectedValue}</Text>
+            <Text> {selectedItem.correctedValue}</Text>
           </View>
           <View style={style.buttonContainer}>
             {/* <Pressable
@@ -445,7 +440,7 @@ function Accordions(props: {title: any}) {
                   selectedTextStyle={style.selectedTextStyle}
                   inputSearchStyle={style.inputSearchStyle}
                   iconStyle={style.iconStyle}
-                  data={MasterValueData}
+                  data={masterValue}
                   search
                   maxHeight={300}
                   labelField="historyId"
@@ -836,6 +831,9 @@ const style = StyleSheet.create({
     padding: 10,
     backgroundColor: 'red',
     borderRadius: 5,
+    textAlign: 'center',
+    color: 'white',
+    marginBottom: 10,
   },
   buttonText: {
     color: 'white',

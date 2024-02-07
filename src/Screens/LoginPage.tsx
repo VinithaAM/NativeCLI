@@ -21,7 +21,7 @@ import {
   ScrollView,
 } from 'react-native';
 // import { MaterialCommunityIcons } from "@expo/vector-icons/";
-// import {logins} from '../Services/CommonService';
+ import {login} from '../Services/CommonService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {ScreenType} from './StackNavigation';
@@ -30,7 +30,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import Modal from 'react-native-modal';
 import {useFocusEffect} from '@react-navigation/native';
 import JailMonkey from 'jail-monkey';
-import {connectToDatabase, login} from '../Services/Database';
+//import {connectToDatabase, login} from '../Services/Database';
 
 type Proptype = NativeStackScreenProps<ScreenType, 'LoginPage'>;
 
@@ -82,43 +82,43 @@ function LoginPage(prop: Proptype) {
       password != undefined &&
       password != ''
     ) {
-      const db = await connectToDatabase();
-      login(db, loginDetails).then(result => {
-        console.log(result);
-        if (result.length > 0) {
-          navigation.navigate('FlatListPage');
-          setUserName('');
-          setPassword('');
-        } else {
-          notifyMessage('User account Not Found');
-        }
-        //console.log(result.length>0),
-      });
-      setLoading(false);
-      // login(loginDetails)
-      //   .then(result => {
-      //     if (result.data.status === 'Failed') {
-      //       setLoading(false);
-      //       //Toast.show(result.data.message, Toast.SHORT);
-      //       Alert.alert(result.data.message);
-      //     } else if (result.data.status === 'Success') {
-      //       AsyncStorage.setItem(
-      //         'LoginResponse',
+      // const db = await connectToDatabase();
+      // login(db, loginDetails).then(result => {
+      //   console.log(result);
+      //   if (result.length > 0) {
+      //     navigation.navigate('FlatListPage');
+      //     setUserName('');
+      //     setPassword('');
+      //   } else {
+      //     notifyMessage('User account Not Found');
+      //   }
+      //   //console.log(result.length>0),
+      // });
+      // setLoading(false);
+      login(loginDetails)
+        .then(result => {
+          if (result.data.status === 'Failed') {
+            setLoading(false);
+            //Toast.show(result.data.message, Toast.SHORT);
+            Alert.alert(result.data.message);
+          } else if (result.data.status === 'Success') {
+            AsyncStorage.setItem(
+              'LoginResponse',
 
-      //         result.data.data.token,
-      //       );
+              result.data.data.token,
+            );
 
-      //       setUserName('');
-      //       setPassword('');
-      //       setLoading(false);
-      //       navigation.navigate('FlatListPage');
-      //     }
-      //   })
-      //   .catch((error: any) => {
-      //     setLoading(false);
-      //     console.log('Error occurred', error);
-      //     // Handle the error here (e.g., show error message, perform error-related actions)
-      //   });
+            setUserName('');
+            setPassword('');
+            setLoading(false);
+            navigation.navigate('FlatListPage');
+          }
+        })
+        .catch((error: any) => {
+          setLoading(false);
+          console.log('Error occurred', error);
+          // Handle the error here (e.g., show error message, perform error-related actions)
+        });
     } else {
       setLoading(false);
       setIsUserNameEmpty(true);
@@ -214,7 +214,7 @@ function LoginPage(prop: Proptype) {
             ]}
             value={userName}
             onChangeText={onChangeUsername}
-            maxLength={30}></TextInput>
+            maxLength={50}></TextInput>
           <Text style={style.inputTitle}>Password</Text>
           <View>
             <TextInput

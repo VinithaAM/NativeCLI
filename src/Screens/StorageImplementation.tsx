@@ -57,11 +57,17 @@ function StorageImplementation(prop: typeprop) {
     setIsValidEmail(isValidEmail);
   }
   const [images, setImages] = useState(false);
+  const [camerapermission,setcameraPermission]=useState<any>()
   const requestPermission = async () => {
     const grand = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.CAMERA,
     );
-    console.log('granted', grand);
+    setcameraPermission(grand)
+    console.log("camerapermission",camerapermission)
+    const mediapermission = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+    );
+    console.log('granted', grand,mediapermission);
     let Options = {
       path: 'image',
       multiple: true,
@@ -69,7 +75,7 @@ function StorageImplementation(prop: typeprop) {
       maxHeight: 200,
       maxWidth: 200,
     };
-    if (grand == 'granted') {
+    if (grand == PermissionsAndroid.RESULTS.GRANTED) {
       await launchCamera(Options, response => {
         console.log(response);
         if (response.didCancel) {
@@ -80,7 +86,7 @@ function StorageImplementation(prop: typeprop) {
           setProfilePicture(response?.assets[0]?.base64);
         }
       });
-    } else {
+    } else if(mediapermission == PermissionsAndroid.RESULTS.GRANTED){
       await launchImageLibrary(Options, response => {
         //console.log(response);
         if (response.didCancel) {
@@ -92,6 +98,9 @@ function StorageImplementation(prop: typeprop) {
           convertToByteArray(response?.assets[0]?.uri);
         }
       });
+    }
+    else{
+      Alert.alert("No media permission for this Application...")
     }
   };
   const [selectedImage, setselectedImage] = useState('');
