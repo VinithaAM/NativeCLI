@@ -18,6 +18,8 @@ import {
   Alert,
   Image,
   ViewBase,
+  useColorScheme,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {ScreenType} from './StackNavigation';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -27,6 +29,7 @@ import ImagePicker from 'react-native-image-crop-picker';
 // import { MaterialCommunityIcons } from "@expo/vector-icons/";
 import {PermissionsAndroid, Linking} from 'react-native';
 import {addUserDetails, connectToDatabase} from '../Services/Database';
+import TruncatedTextWithTooltip from '../Components/ToolTip';
 
 type typeprop = NativeStackScreenProps<ScreenType, 'RegistrationPage'>;
 function RegistrationPage(prop: typeprop) {
@@ -44,6 +47,7 @@ function RegistrationPage(prop: typeprop) {
   const [isPasswordSecure, setIsPasswordSecure] = useState(true);
   const [isConfPasswordSecure, setIsConfPasswordSecure] = useState(true);
 
+  const isDarkMode=useColorScheme()==='dark'
   function handleChangefirstname(event: any) {
     const value = event;
     const sanitizedValue = value.replace(/[^a-zA-Z]/g, '');
@@ -321,23 +325,27 @@ function RegistrationPage(prop: typeprop) {
   // };
 
   return (
-    <View style={style.container}>
-      <Text style={style.textTitle}>Sign Up Form</Text>
+    <KeyboardAvoidingView style={style.container}>
+      <Text style={[style.textTitle,{color: isDarkMode ? '#3246a8'  : '#3246a8'}]}>Sign Up Form</Text>
 
       <Text style={style.inputTitle}>Firstname</Text>
       <TextInput
         placeholder="Enter the Firstame"
         style={[
           style.textInput,
-          {borderColor: isFirstNameEmpty ? 'red' : 'black'},
+          {borderColor: isFirstNameEmpty ? 'red' : 'black',
+          color: isDarkMode ? 'black'  : 'black'},
         ]}
+        placeholderTextColor={isDarkMode ? 'black'  : 'black'}
         value={firstName}
         maxLength={30}
         onChangeText={handleChangefirstname}></TextInput>
       <Text style={style.inputTitle}>Lastname</Text>
       <TextInput
         placeholder="Enter the Lastname"
-        style={style.textInput}
+        style={[style.textInput,
+        { color: isDarkMode ? 'black'  : 'black'}]}
+        placeholderTextColor={isDarkMode ? 'black'  : 'black'}
         value={lastName}
         maxLength={30}
         onChangeText={handleChangelastname}></TextInput>
@@ -347,8 +355,10 @@ function RegistrationPage(prop: typeprop) {
         placeholder="Enter the Username"
         style={[
           style.textInput,
-          {borderColor: isUserNameEmpty ? 'red' : 'black'},
+          {borderColor: isUserNameEmpty ? 'red' : 'black',
+          color: isDarkMode ? 'black'  : 'black'},
         ]}
+        placeholderTextColor={isDarkMode ? 'black'  : 'black'}
         value={email}
         keyboardType="email-address"
         autoCapitalize="none"
@@ -359,14 +369,17 @@ function RegistrationPage(prop: typeprop) {
           <Text style={style.errorText}>Please Enter Proper Email</Text>
         </View>
       )}
+    
       <Text style={style.inputTitle}>Password</Text>
-      <View>
+      
         <TextInput
           placeholder="Enter the Password"
           style={[
             style.textInput,
-            {borderColor: isPasswordEmpty ? 'red' : 'black'},
+            {borderColor: isPasswordEmpty ? 'red' : 'black',
+            color: isDarkMode ? 'black'  : 'black'},
           ]}
+          placeholderTextColor={isDarkMode ? 'black'  : 'black'}
           value={password}
           secureTextEntry={isPasswordSecure}
           maxLength={30}
@@ -383,9 +396,11 @@ function RegistrationPage(prop: typeprop) {
               : setIsPasswordSecure(true)
           }
         /> */}
+        <View style={{alignSelf:"center"}}>
         {validationMessage !== '' &&
           validationMessage !== 'Password is valid' && (
             <View style={style.errorMessage}>
+              {/* <TruncatedTextWithTooltip text={validationMessage} maxLength={55} /> */}
               <Text style={style.errorText}>{validationMessage}</Text>
             </View>
           )}
@@ -395,10 +410,11 @@ function RegistrationPage(prop: typeprop) {
       <View>
         <TextInput
           placeholder="Enter the confirmPassword"
-          style={style.textInput}
+          style={[style.textInput,{ color: isDarkMode ? 'black'  : 'black'}]}
           value={confirmPassword}
           secureTextEntry={isConfPasswordSecure}
           maxLength={30}
+          placeholderTextColor={isDarkMode ? 'black'  : 'black'}
           onChangeText={handleChangeconfirmPassword}></TextInput>
         {/* <MaterialCommunityIcons
           name={isConfPasswordSecure ? "eye-off" : "eye"}
@@ -504,16 +520,16 @@ function RegistrationPage(prop: typeprop) {
           <Text style={{color: '#fff'}}> Cancel</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 const width = Dimensions.get('window').width - 70;
 const style = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
+     flexGrow: 1,
+     flexDirection: 'column',
+     justifyContent: 'center',
+     alignItems: 'center',
   },
   uploadbutton: {
     padding: 5,
@@ -541,11 +557,11 @@ const style = StyleSheet.create({
     paddingLeft: 25,
     marginBottom: 5,
     opacity: 0.5,
-    color: 'black',
+    color: '#080707',
     fontWeight: 'bold',
     fontFamily: 'serif',
     fontSize: 15,
-    marginRight: 50,
+    // marginRight: 50,
   },
   styleView: {
     flexDirection: 'row',
@@ -571,7 +587,7 @@ const style = StyleSheet.create({
     textAlign: 'center',
   },
   textTitle: {
-    color: 'black',
+    // color: 'black',
     fontWeight: 'bold',
     fontFamily: 'sans-serif',
     fontSize: 25,
@@ -583,14 +599,15 @@ const style = StyleSheet.create({
     backgroundColor: 'blue',
     marginRight: 150,
     color: 'white',
-    //marginLeft: 25,
+    marginLeft: 25,
   },
   datetime: {
     height: 120,
     marginTop: -10,
   },
   errorMessage: {
-    marginTop: 10,
+    margin:8,
+    marginLeft:10
   },
   errorText: {
     color: 'red',

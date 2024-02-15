@@ -10,6 +10,9 @@ import {
   TouchableHighlight,
   Image,
   ActivityIndicator,
+  SectionList,
+  Alert,
+  useColorScheme,
 } from 'react-native';
 import Modal from 'react-native-modal';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
@@ -18,7 +21,9 @@ import {ScreenType} from './StackNavigation';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {getHistoryCorrection} from '../Services/CommonService';
 import {connectToDatabase, getDetails} from '../Services/Database';
-import {ListItem} from 'react-native-elements';
+import {Card, ListItem} from 'react-native-elements';
+import { ScrollView } from 'react-native-gesture-handler';
+import TruncatedTextWithTooltip from '../Components/ToolTip';
 
 type typeprop = NativeStackScreenProps<ScreenType, 'ViewModel'>;
 function ViewModelData(prop: typeprop) {
@@ -26,12 +31,16 @@ function ViewModelData(prop: typeprop) {
   const [userDetails, setUserDetails] = useState([]);
   const [base64stringImage, setbase64string] = useState<string>('');
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [ModalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const isDarkMode=useColorScheme()==="dark"
+
   useEffect(() => {
     setTimeout(() => {
       getUserdetails();
     }, 3000);
-  }, [userDetails]);
+    // console.log(userDetails)
+  }, []);
   const getUserdetails = async () => {
     const db = await connectToDatabase();
     try {
@@ -58,11 +67,22 @@ function ViewModelData(prop: typeprop) {
   };
   const hideEditModal = () => {
     setEditModalVisible(false);
+    setbase64string("")
+  };
+  const onEditModal = () => {
+    setModalVisible(false);
+    setbase64string("")
   };
   const onHandleForgetPassword = (e: any) => {
+    if(e.Profilepic !==""){
+      setEditModalVisible(true);
+      setbase64string(e.Profilepic);
+    }
+    else{
+      setModalVisible(true)
+    }
     //console.log('profile', e);
-    setEditModalVisible(true);
-    setbase64string(e.Profilepic);
+ 
     // <Image
     //   style={{height: 100, width: 150, margin: 10}}
     //   source={{uri: `data:image/png;base64,${x.Profilepic}`}}></Image>;
@@ -72,58 +92,67 @@ function ViewModelData(prop: typeprop) {
     return (
       <View style={style.indicatorWrapper}>
         <ActivityIndicator size="large" color={'#999999'} />
-        <Text style={style.indicatorText}>Loading </Text>
+        <Text style={[style.indicatorText,{color:isDarkMode?'black':'black'}]}>Loading .... </Text>
       </View>
     );
   }
+
   return (
     <View style={style.viewContainer}>
       {loading ? (
         <View>
           {userDetails.length > 0 && (
             <View style={style.innerContainer}>
+              {/* <ListItem
+              style={{width:80,height:50}}
+                title={userDetails.map(x=>x.name)}
+                subtitle="Subtitle"
+                rightTitle="Right Title"
+                onPress={() => console.log('ListItem pressed')}
+              ></ListItem> */}
+            
               {userDetails.map((x, index) => (
                 <>
-                  <View style={style.textContainer}>
-                    <Text
-                      style={{
-                        fontSize: 12,
-                        margin: 5,
-                        color: '#076cf0',
-                        fontWeight: 'bold',
-                      }}
-                      key={x.id}>
-                      {'Name: '}
-                    </Text>
-                    <Text style={{fontSize: 12, margin: 5, fontWeight: 'bold'}}>
-                      {x.Name}
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 12,
-                        color: '#076cf0',
-                        margin: 5,
-                        fontWeight: 'bold',
-                      }}>
-                      {'Username: '}
-                    </Text>
-                    <Text>{x.UserName}</Text>
+                <View style={{flexDirection:"row",marginRight:10,justifyContent:"space-evenly"}}>
+                <View
+                     key = {x.id}
+                     style = {style.ListView}>
+                     {/* <Text style = {style.text}>
+                        {x.Name}
+                     </Text>
+                     <Text style = {style.text}>
+                        {x.UserName}
+                     </Text> */}
+                     <TruncatedTextWithTooltip  text={x.Name} maxLength={10} />
+                     <TruncatedTextWithTooltip text={x.UserName} maxLength={10} />
                   </View>
-                  <View style={style.textContainer}></View>
-                  <Text
-                    style={{color: '#1f0a0c', fontSize: 15, margin: 5}}
-                    onPress={() => onHandleForgetPassword(x)}>
-                    Show Image
-                  </Text>
+               
+                 <TouchableOpacity
+                     style = {style.customButton}
+                     onPress = {() => onHandleForgetPassword(x)}>
+                     <Text style = {style.text}>
+                        Show Image
+                     </Text>
+                  </TouchableOpacity>
+                  </View>
+                {/* <SectionList data={userDetails}
+                keyExtractor={(item, index) => item + index}
+                renderItem={renderItem}
+                renderSectionHeader={renderSectionHeader}
+                > */}
+                
+               
                 </>
               ))}
-            </View>
+               </View>
+           
           )}
         </View>
+       
       ) : (
         <LoadingAnimation />
       )}
-      <Modal animationIn="slideInUp" isVisible={editModalVisible}>
+      {base64stringImage ?( <Modal animationIn="slideInUp" isVisible={editModalVisible}>
         <View style={style.modalView}>
           <Image
             style={{height: 300, width: 300, margin: 10}}
@@ -134,7 +163,12 @@ function ViewModelData(prop: typeprop) {
             <Text style={{color: '#fff'}}>Close</Text>
           </Pressable>
         </View>
-      </Modal>
+      </Modal>):
+      <Modal animationIn="bounceIn" isVisible={ModalVisible} onModalHide={onEditModal}><View style={style.modalView}><Text>No image found</Text>
+       <Pressable style={style.buttonClear} onPress={onEditModal}>
+            <Text style={{color: '#fff'}}>Close</Text>
+          </Pressable></View></Modal>}
+     
     </View>
   );
 }
@@ -144,11 +178,24 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  ListView:{
+    padding: 5,
+    margin:10,
+      backgroundColor: '#adeddf',
+      alignItems: 'center',
+      borderColor:"#4f603c",
+      borderRadius:5,
+      borderWidth:2
+  },
+  text: {
+    color: '#f5160a'
+ },
   viewContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     margin: 10,
+    flexGrow:1
   },
   button: {
     flex: 1,
@@ -195,11 +242,14 @@ const style = StyleSheet.create({
     fontSize: 12,
   },
   customButton: {
-    padding: 10,
-    borderRadius: 5,
-    marginLeft: 4,
-    marginRight: 4,
-    borderColor: 'blue',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#b5e8dd',
+    margin:10,
+   padding:5,
+      borderColor:"#4f603c",
+      borderRadius:5,
+      borderWidth:2
   },
 
   buttonLogin: {
@@ -212,6 +262,7 @@ const style = StyleSheet.create({
     textAlign: 'center',
   },
   buttonClear: {
+    margin:10,
     backgroundColor: '#131413',
     textAlign: 'center',
     color: 'white',
@@ -228,3 +279,52 @@ const style = StyleSheet.create({
   },
 });
 export default ViewModelData;
+{/* <View style={style.textContainer}>
+<Text
+  style={{
+    fontSize: 12,
+    margin: 5,
+    color: '#076cf0',
+    fontWeight: 'bold',
+  }}
+  key={x.id}>
+  {'Id: '}
+</Text>
+<Text style={{fontSize: 12, margin: 5, fontWeight: 'bold'}}>
+  {x.id}
+</Text>
+</View>
+<View style={style.textContainer}>
+<Text
+  style={{
+    fontSize: 12,
+    margin: 5,
+    color: '#076cf0',
+    fontWeight: 'bold',
+  }}
+  key={x.id}>
+  {'Name: '}
+</Text>
+<Text style={{fontSize: 12, margin: 5, fontWeight: 'bold'}}>
+  {x.Name}
+</Text>
+</View>
+<View style={style.textContainer}>
+<Text
+  style={{
+    fontSize: 12,
+    color: '#076cf0',
+    margin: 5,
+    fontWeight: 'bold',
+  }}>
+  {'Username: '}
+</Text>
+<Text style={{fontSize: 12, margin: 5, fontWeight: 'bold'}}>{x.UserName}</Text>
+</View>
+
+<View style={style.textContainer}></View>
+<Text
+style={{color: '#1f0a0c', fontSize: 15, margin: 5}}
+onPress={() => onHandleForgetPassword(x)}>
+Show Image
+</Text> */}

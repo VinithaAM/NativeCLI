@@ -1,13 +1,13 @@
 // import { useNavigation } from "@react-navigation/native";
 import {TextInput, TouchableOpacity} from 'react-native';
 import {StyleSheet, Text, View, Dimensions, Image} from 'react-native';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
+// import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import Navigation from './Navigatior';
 import {ScreenType} from './StackNavigation';
 
-type Proptype = NativeStackScreenProps<ScreenType, 'WelcomePage'>;
+// type Proptype = NativeStackScreenProps<ScreenType, 'WelcomePage'>;
 
-function WelcomePage(prop: Proptype) {
+function WelcomePage(prop: any) {
   const {navigation} = prop;
 
   const onHadleSignup = () => {

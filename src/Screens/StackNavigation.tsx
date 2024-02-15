@@ -40,7 +40,7 @@ function StackNavigation() {
           fontWeight: 'bold', // Customize the font style
         },
       }}>
-      <Stack.Screen name="samplePage" component={JailMonkey} />
+      {/* <Stack.Screen name="samplePage" component={JailMonkey} /> */}
       <Stack.Screen
         name="LoginPage"
         component={LoginPage}
@@ -49,7 +49,11 @@ function StackNavigation() {
           headerTintColor: 'black', // This removes the back arrow
         }}
       />
-      <Stack.Screen name="RegistrationPage" component={RegistrationPage} />
+      <Stack.Screen name="RegistrationPage" component={RegistrationPage}
+        options={{
+          headerBackVisible: false,
+          headerTintColor: 'black', // This removes the back arrow
+        }} />
       <Stack.Screen
         name="FlatListPage"
         component={FlatListPage}
@@ -58,7 +62,12 @@ function StackNavigation() {
           headerTintColor: 'black', // This removes the back arrow
         }}
       />
-      <Stack.Screen name="AddNew" component={AddNewPage} />
+      <Stack.Screen name="AddNew" component={AddNewPage} 
+        options={{
+          //headerTitle:"Add New Details",
+          //headerBackVisible: false,
+          headerTintColor: 'black', // This removes the back arrow
+        }}/>
       <Stack.Screen
         name="ForgetPassword"
         component={ForgetPassword}

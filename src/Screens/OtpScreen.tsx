@@ -3,18 +3,21 @@ import {
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 import React, { RefObject, useEffect, useRef, useState } from 'react';
-import {Alert, Dimensions, StyleSheet, Text, ToastAndroid, TouchableOpacity} from 'react-native';
+import {Alert, Dimensions, Platform, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity} from 'react-native';
 import {View} from 'react-native';
 import OTPTextView from '@twotalltotems/react-native-otp-input';
 import {ScreenType} from './StackNavigation';
-import { validateOTP } from '../Services/CommonService';
+import { forgetPassword, validateOTP } from '../Services/CommonService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import OtpInputs from 'react-native-otp-inputs';
+import OTPInputView from '@twotalltotems/react-native-otp-input';
 
 type Proptype = NativeStackScreenProps<ScreenType, 'OTPPage'>;
 function OtpScreen(prop: Proptype) {
+    const otpTextViewRef = useRef(null);
   const {navigation} = prop;
   const[Otp,setOtp]=useState("");
+  const[UserName,setUserName]=useState("");
   const[id,setId]=useState(0);
   useEffect(()=>{
     userDetails()
@@ -22,11 +25,51 @@ function OtpScreen(prop: Proptype) {
   const userDetails = async ()=>{
     const token = await AsyncStorage.getItem('UserDetails');
     const userId=JSON.parse(token).id
+    const userna=JSON.parse(token).userName
      setId(userId)
+     setUserName(userna)
   }
-  const onHandleresend = () => {};
+  const onHandleresend = () => {
+    var loginDetails = {
+      userName: UserName,
+    };
+    if (UserName != undefined && UserName != '') {
+      forgetPassword(UserName)
+        .then(result => {
+          if (result.data.status === 'Failed') {
+        
+            ToastAndroid.show(result.data.message, ToastAndroid.SHORT);
+           // Toast.show(result.message, Toast.SHORT);
+            Alert.alert(result.data.message);
+          } else if (result.data.status === 'Success') {
+            AsyncStorage.setItem(
+              'UserDetails',
+              JSON.stringify(result.data.data),
+            );
+           
+           ToastAndroid.show(result.data.message,ToastAndroid.LONG)
+          }
+        })
+        .catch((error: any) => {
+         
+          console.log('Error occurred', error);
+        });
+    } else {
+      notifyMessage('Please Provide Valid Username .....');
+    }
+   // navigation.navigate('OTPPage');
+  };
+  function notifyMessage(msg: string) {
+    if (Platform.OS === 'android') {
+      Alert.alert(msg);
+      //ToastAndroid.show(msg, ToastAndroid.SHORT);
+    } else {
+      Alert.alert(msg);
+    }
+  }
   const handleOtpChange =(e:any)=>{
       setOtp(e)
+      console.log(Otp)
   }
   const onhandleSubmit = () => {
     var loginDetails = {
@@ -58,40 +101,70 @@ function OtpScreen(prop: Proptype) {
     }
    // navigation.navigate('ChangePassword');
   };
+  const renderFunction=()=>{
+    <View>
+      <TextInput style={{height:50,width:50}}>
+
+      </TextInput>
+    </View>
+  }
   return (
     <View style={style.container}>
       <Text style={style.textTitle}> Please Enter One time Password</Text>
       <View style={{flexDirection:"row"}}></View>
       <OtpInputs
-       handleChange={handleOtpChange}
+       onChange={handleOtpChange}
        numberOfInputs={4}
        style={style.input}
-       clearTextOnFocus
-          // handleChange={(code) => console.log(code)}
-          // keyboardType="number-pad"
-          // numberOfInputs={1}
-          // selectTextOnFocus={true}
-          // ref={otpRef}
-        />
+      //  shouldAutoFocus={true}
+      // renderSeparator={renderFunction}
+       //codeInputFieldStyle={style.underlineStyleBase}
+       //codeInputHighlightStyle={style.underlineStyleHighLighted}
+       //clearTextOnFocus
+       />
+       
           {/* <OtpInputs
       style={style.input}
           handleChange={(code) => console.log(code)}
           keyboardType="phone-pad"
           numberOfInputs={1}
           maxLength={1}
+           // handleChange={(code) => console.log(code)}
+          // keyboardType="number-pad"
+          // numberOfInputs={1}
+          // selectTextOnFocus={true}
+          // ref={otpRef}
         /> */}
      
-    
-      {/* <OTPTextView
-       style={{ width: '50%', height: 50 }}
+     <OTPInputView
+        style={{width: '50%', height: 100}}
+        pinCount={4}
+        onCodeFilled={handleOtpChange}
+        onCodeChanged={handleOtpChange}
+        // autoFocusOnLoad
+        codeInputFieldStyle={style.underlineStyleBase}
+        codeInputHighlightStyle={style.underlineStyleHighLighted}
+      />
+       {/* <OTPTextView
+       style={{ width: '50%', height: 50,backgroundColor:"lightblue"}}
        pinCount={4}
-       autoFocusOnLoad
-       keyboardType='number-pad'
-       codeInputFieldStyle={{ width: 30, height: 15 }}
-       codeInputHighlightStyle={{ borderColor: 'black' }}
+      //  clearTextOnFocus
+      //  autoFocusOnLoad={true}
+      //  keyboardAppearance="dark"
+      //  keyboardType="phone-pad"
+       editable
+       codeInputFieldStyle={style.underlineStyleBase}
+       codeInputHighlightStyle={style.underlineStyleHighLighted}
+       //keyboardType='number-pad'
+      //  codeInputFieldStyle={{ width: 30, height: 15 }}
+        //codeInputHighlightStyle={{ borderColor: 'black' }}
        onCodeFilled ={handleOtpChange}
        onCodeChanged={handleOtpChange}
-      ></OTPTextView> */}
+      ></OTPTextView>  */}
+       {/* <OtpInputs
+          handleChange={(code) => console.log(code)}
+          numberOfInputs={4}
+        /> */}
       <View style={{flexDirection: 'row'}}>
         <TouchableOpacity
           style={[style.buttonLogin, style.customButton]}
@@ -119,10 +192,22 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  underlineStyleBase: {
+    width: 45,
+    height: 45,
+    borderWidth: 2,
+    borderBottomWidth: 2,
+    backgroundColor: '#538fbd',
+  },
+
+  underlineStyleHighLighted: {
+    borderColor: '#03DAC6',
+    color: '#0a0a0a',
+  },
   input: {
-     borderWidth: 1,
-     borderColor: 'gray',
-     borderRadius: 5,
+    //  borderWidth: 1,
+    //  borderColor: 'gray',
+    //  borderRadius: 5,
      width: 120,
     // height: 40,
     marginHorizontal: 5,

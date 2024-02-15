@@ -11,18 +11,25 @@ import {
   Button,
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
+  useColorScheme,
 } from 'react-native';
 import {Dropdown} from 'react-native-element-dropdown';
 // import AntDesign from "@expo/vector-icons/AntDesign";
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {ScreenType} from './StackNavigation';
 // import DateTimePicker from "@react-native-community/datetimepicker";
-import {AddNewItem, MasterHistoryData} from '../Services/CommonService';
+import {
+  AddNewItem,
+  MasterHistoryData,
+  refreshToken,
+} from '../Services/CommonService';
 // import RNDateTimePicker from "@react-native-community/datetimepicker";
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {MasterData} from '../Components/dummyData';
 import {IMasterName} from '../Components/HistoryDataCorrectionModel';
 import {addcorrectionDetails, connectToDatabase} from '../Services/Database';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type typeprop = NativeStackScreenProps<ScreenType, 'AddNew'>;
 function AddNewPage(prop: typeprop) {
@@ -31,7 +38,7 @@ function AddNewPage(prop: typeprop) {
   const renderItem = (item: any) => {
     return (
       <View style={style.item}>
-        <Text style={style.textItem}>{item.historyId}</Text>
+        <Text style={[style.textItem,{color:isDarkMode?'black':'black'}]}>{item.historyId}</Text>
         {/* {item.value === value && (
           <AntDesign style={style.icon} color="black" name="Safety" size={20} />
         )} */}
@@ -48,6 +55,17 @@ function AddNewPage(prop: typeprop) {
   const [value, setValue] = useState('');
   const [masterValue, setMasterValue] = useState([]);
   const [showDatePick, setShowDatePicker] = useState(false);
+
+  const isDarkMode = useColorScheme() === 'dark';
+
+  const handletoken = async () => {
+    const Userdetails = await AsyncStorage.getItem('LoginResponse');
+    const id = JSON.parse(Userdetails).id;
+    refreshToken(id).catch(error => console.log('Error in Token', error));
+    const intervalId = setInterval(refreshToken, 300000);
+    console.log('intervalId', intervalId);
+    clearInterval(intervalId);
+  };
   function handleClear() {
     sethistoryId('');
     settimeStamp(new Date());
@@ -55,7 +73,7 @@ function AddNewPage(prop: typeprop) {
     setstatus('');
   }
   function onChangeStatus(e: any) {
-    const regex = /^[a-zA-Z]*$/;
+    const regex = /^[a-zA-Z@{}%]*$/;
     if (regex.test(e) || e === '') {
       setstatus(e);
     }
@@ -122,16 +140,19 @@ function AddNewPage(prop: typeprop) {
   useEffect(() => {
     setTimeout(() => {
       masterDatafetch();
-    }, 5000);
+    }, 3000);
   }, []);
   const masterDatafetch = () => {
-    MasterHistoryData().then(result => {
-      setLoading(true);
-      setMasterValue(result.data.data);
-    }).catch((error: any) => {
-      console.log('Error occurred', error);
-      navigation.navigate('LoginPage');
-    });;
+    MasterHistoryData()
+      .then(result => {
+        setLoading(true);
+        handletoken();
+        setMasterValue(result.data.data);
+      })
+      .catch((error: any) => {
+        console.log('Error occurred', error);
+        navigation.navigate('LoginPage');
+      });
   };
   const onChangeDate = (selectedDate: any) => {
     setShowDatePicker(Platform.OS === 'ios');
@@ -145,8 +166,8 @@ function AddNewPage(prop: typeprop) {
   function LoadingAnimation() {
     return (
       <View style={style.indicatorWrapper}>
-        <ActivityIndicator size="large" color={'#999999'} />
-        <Text style={style.indicatorText}>Loading </Text>
+        <ActivityIndicator size="large" color={isDarkMode?"#999999":"#999999"} />
+        <Text style={[style.indicatorText,{color:isDarkMode?'black':'black'}]}>Loading .....</Text>
       </View>
     );
   }
@@ -164,17 +185,11 @@ function AddNewPage(prop: typeprop) {
   const handleConfirmDate = (date: any) => {
     //console.log("time",date)
     var newDate = new Date(date);
-    console.log("date",date)
-    
-    const formattedTime = newDate
-   // toISOString();
-    // undefined, {
-    //   hour: '2-digit',
-    //   minute: '2-digit',
-    //   hour12: false, // Ensure that the time is displayed in 12-hour format (AM/PM)
-    // }
-    console.log("time",newDate,formattedTime)
-    settimeStamp(newDate);
+    const offset = date.getTimezoneOffset();
+    const utcDate = new Date(date.getTime() - offset * 60000);
+
+    console.log('UTC Time:', utcDate);
+    settimeStamp(utcDate);
     hideDatePicker();
   };
   const onhandlesample = () => {
@@ -182,117 +197,109 @@ function AddNewPage(prop: typeprop) {
   };
   return (
     <>
-      <View style={style.container}>
-        
+      <KeyboardAvoidingView style={style.container}>
         {loading ? (
           <>
-          <TouchableOpacity
-          style={[style.buttonupload, style.customButton]}
-          onPress={onhandlesample}>
-          <Text style={{color: '#fff'}}>Image Upload</Text>
-        </TouchableOpacity>
-          <View style={style.modalView}>
+            <TouchableOpacity
+              style={[style.buttonupload, style.customButton]}
+              onPress={onhandlesample}>
+              <Text style={{color: '#fff'}}>Image Upload</Text>
+            </TouchableOpacity>
+            
+            <View style={style.modalView}>
             <Text style={style.textTitle}>Add New Details</Text>
-            {/* <View style={style.insideContainer}> */}
-            <View style={style.viewContainer}>
-              <Text
-                style={{
-                  fontWeight: 'bold',
-                  color: 'black',
-                  fontSize: 12,
-                }}>
-                MasterName :
-              </Text>
-              <Dropdown
-                style={style.dropdown}
-                placeholderStyle={style.placeholderStyle}
-                selectedTextStyle={style.selectedTextStyle}
-                inputSearchStyle={style.inputSearchStyle}
-                iconStyle={style.iconStyle}
-                data={masterValue}
-                search
-                maxHeight={300}
-                labelField="historyId"
-                valueField="historyId"
-                placeholder="Select item"
-                searchPlaceholder="Search..."
-                value={historyId}
-                onChange={(item: any) => {
-                  sethistoryId(item.historyId);
-                }}
-                // renderLeftIcon={() => (
-                //   <AntDesign
-                //     style={style.icon}
-                //     color="black"
-                //     name="Safety"
-                //     size={20}
-                //   />
-                // )}
-                renderItem={renderItem}></Dropdown>
-            </View>
-            {/* <View style={style.insideContainer}>
-          <Text style={style.inputTitle}>StatusTag</Text> */}
-            <View style={style.viewContainer}>
-              <Text
-                style={{
-                  fontWeight: 'bold',
-                  color: 'black',
-                  fontSize: 12,
-                }}>
-                Status :
-              </Text>
-              <TextInput
-                placeholder="Enter the Status"
-                style={style.textInput}
-                value={status}
-                onChangeText={onChangeStatus}
-                maxLength={15}></TextInput>
-            </View>
-            <View style={style.viewContainer}>
-              <Text
-                style={{
-                  fontWeight: 'bold',
-                  color: 'black',
-                  fontSize: 12,
-                }}>
-                Value :
-              </Text>
-              <TextInput
-                keyboardType="numeric"
-                placeholder="Enter the Correction Value"
-                style={style.textInput}
-                value={correctionValue}
-                onChangeText={onChangeValue}
-                maxLength={8}></TextInput>
-            </View>
-            <View style={style.viewContainer}>
-              <Text
-                style={{
-                  fontWeight: 'bold',
-                  color: 'black',
-                  fontSize: 12,
-                }}>
-                TimeStamp :
-              </Text>
-              <Pressable onPress={() => setDatePickerVisibility(true)}>
-                <Text style={style.Datepicker}>Select TimeStamp</Text>
-              </Pressable>
-              <DateTimePickerModal
-                isVisible={isDatePickerVisible}
-                mode="datetime"
-                onConfirm={handleConfirmDate}
-                onCancel={hideDatePicker}
-              />
-              {/* {showDatePick && (
-                <RNDateTimePicker
-                  value={date}
-                  mode="date"
-                  display="spinner"x
-                  onChange={onChangeDate}
+            <Text
+                  style={{
+                    fontWeight: 'bold',
+                    color: 'black',
+                    fontSize: 13,
+                    alignSelf: 'baseline',
+                    margin:8
+                  }}>
+                  MasterName :
+                </Text>
+                <Dropdown
+                  style={[style.dropdown]}
+                  placeholderStyle={[style.placeholderStyle,{color:isDarkMode?'black':'black'}]}
+                  selectedTextStyle={[style.selectedTextStyle,{color:isDarkMode?'black':'black'}]}
+                  inputSearchStyle={[style.inputSearchStyle,{color:isDarkMode?'black':'black'}]}
+                  iconStyle={style.iconStyle}
+                  data={masterValue}
+                  search
+                  maxHeight={300}
+                  labelField="historyId"
+                  valueField="historyId"
+                  placeholder="Select item"
+                  searchPlaceholder="Search..."
+                  value={historyId}
+                  onChange={(item: any) => {
+                    sethistoryId(item.historyId);
+                  }}
+                  // renderLeftIcon={() => (
+                  //   <AntDesign
+                  //     style={style.icon}
+                  //     color="black"
+                  //     name="Safety"
+                  //     size={20}
+                  //   />
+                  // )}
+                  renderItem={renderItem}></Dropdown>
+                  <Text
+                  style={{
+                    fontWeight: 'bold',
+                    color: 'black',
+                    fontSize: 13,
+                    alignSelf: 'baseline',
+                    margin:8
+                  }}>
+                  TimeStamp :
+                </Text>
+                <Pressable onPress={() => setDatePickerVisibility(true)}>
+                  <Text style={[style.Datepicker,{color:isDarkMode?'black':'black'}]}>Select TimeStamp</Text>
+                </Pressable>
+                <DateTimePickerModal
+                  isVisible={isDatePickerVisible}
+                  mode="datetime"
+                  onConfirm={handleConfirmDate}
+                  onCancel={hideDatePicker}
+                  is24Hour={false}
                 />
-              )} */}
-            </View>
-
+                 <Text
+                  style={{
+                    fontWeight: 'bold',
+                    color: 'black',
+                    fontSize: 13,
+                    alignSelf: 'baseline',
+                    margin:8
+                  }}>
+                  Status_Tag :
+                </Text>
+                <TextInput
+                  placeholder="Enter the Status"
+                  placeholderTextColor={isDarkMode ? 'black'  : 'black'}
+                  style={[ style.textInput,{color:isDarkMode?'black':'black'}]}
+                  value={status}
+                  onChangeText={onChangeStatus}
+                  maxLength={15}></TextInput>
+                  <Text
+                  style={{
+                    fontWeight: 'bold',
+                    color: 'black',
+                    fontSize: 13,
+                    alignSelf: 'baseline',
+                    margin:8
+                  }}>
+                  Value :
+                </Text>
+                <TextInput
+                  keyboardType="numeric"
+                   placeholder="Enter the Correction Value"
+                   placeholderTextColor={isDarkMode ? 'black'  : 'black'}
+                  style={[style.textInput,{color:isDarkMode?'black':'black'}]}
+                  value={correctionValue}
+                  onChangeText={onChangeValue}
+                  maxLength={8}></TextInput>
+             
             <View style={style.styleView}>
               <TouchableOpacity
                 style={[style.buttonLogin, style.customButton]}
@@ -310,35 +317,37 @@ function AddNewPage(prop: typeprop) {
                 <Text style={{color: '#fff'}}> Cancel</Text>
               </TouchableOpacity>
             </View>
-          </View>
+            </View>
           </>
         ) : (
           <LoadingAnimation />
         )}
-      </View>
+      </KeyboardAvoidingView>
     </>
   );
 }
 const width = Dimensions.get('window').width - 70;
 const style = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 5,
+    margin: 25,
   },
   textInput: {
-    width: 230,
+    width: width,
     height: 40,
     borderRadius: 15,
-    paddingLeft: 20,
+    paddingLeft: 10,
     borderWidth: 2,
     borderColor: 'blue',
-    marginBottom: 20,
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    marginTop: 10,
-    marginLeft: 15,
+
+    // marginBottom: 20,
+    // alignItems: 'center',
+    // paddingHorizontal: 10,
+    // marginTop: 10,
+    // marginLeft: 15,
   },
   viewContainer: {
     flexDirection: 'row',
@@ -360,10 +369,11 @@ const style = StyleSheet.create({
   },
   styleView: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
+    margin:10
   },
   modalView: {
-    flex: 0.6,
+    flexGrow: 0.4,
     justifyContent: 'center',
     alignItems: 'center',
     //backgroundColor: "white",
@@ -402,7 +412,7 @@ const style = StyleSheet.create({
     textAlign: 'center',
   },
   textTitle: {
-    color: 'black',
+    color: '#3246a8',
     fontWeight: 'bold',
     fontFamily: 'sans-serif',
     fontSize: 25,
@@ -410,8 +420,7 @@ const style = StyleSheet.create({
     margin: 15,
   },
   dropdown: {
-    margin: 10,
-    height: 20,
+    height: 40,
     backgroundColor: 'lightgray',
     borderRadius: 12,
     padding: 15,
@@ -420,7 +429,19 @@ const style = StyleSheet.create({
       width: 0,
       height: 1,
     },
-    width: 230,
+    width: width,
+    //marginLeft: 10,
+    //  marginLeft: 10,
+    //  height: 20,
+    //  backgroundColor: 'lightgray',
+    //  borderRadius: 12,
+    //  paddingLeft: 15,
+    //  shadowColor: '#000',
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 1,
+    // },
+    //  width: 230,
   },
   placeholderStyle: {
     fontSize: 16,
@@ -452,32 +473,34 @@ const style = StyleSheet.create({
   },
   Datepicker: {
     padding: 3,
+    height: 35,
     borderRadius: 10,
     marginBottom: 5,
     borderColor: 'blue',
     backgroundColor: 'lightgrey',
     //marginRight: 100,
-    marginLeft: 8,
-    width: 230,
+    //marginLeft: 20,
+    width: width,
     alignContent: 'center',
     justifyContent: 'center',
-    marginTop: 10,
+    // marginTop: 10,
     paddingLeft: 10,
+    fontSize:15
   },
-  dropdownTitle: {
-    alignSelf: 'flex-start',
-    //paddingLeft: 30,
-    marginBottom: 5,
-    opacity: 0.5,
-    color: 'black',
-    fontWeight: 'bold',
-    fontFamily: 'serif',
-    fontSize: 15,
-    borderColor: 'blue',
-    //marginRight: 100,
-    marginLeft: 50,
-    textAlign: 'center',
-  },
+  // dropdownTitle: {
+  //   alignSelf: 'flex-start',
+  //   //paddingLeft: 30,
+  //   marginBottom: 5,
+  //   opacity: 0.5,
+  //   color: 'black',
+  //   fontWeight: 'bold',
+  //   fontFamily: 'serif',
+  //   fontSize: 15,
+  //   borderColor: 'blue',
+  //   //marginRight: 100,
+  //   marginLeft: 50,
+  //   textAlign: 'center',
+  // },
   indicatorWrapper: {
     flex: 1,
     alignItems: 'center',

@@ -2,12 +2,14 @@ import React, {useEffect, useState} from 'react';
 import {
   Alert,
   Dimensions,
+  KeyboardAvoidingView,
   StyleSheet,
   Text,
   TextInput,
   ToastAndroid,
   TouchableOpacity,
   View,
+  useColorScheme,
 } from 'react-native';
 //import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 // import {Icon} from 'react-native-elements';
@@ -27,6 +29,10 @@ function ChangePassword(prop:Proptype) {
   const [isPasswordEmpty, setPasswordEmpty] = useState(false);
   const [isPasswordSecure, setIsPasswordSecure] = useState(true);
   const [isConfPasswordSecure, setIsConfPasswordSecure] = useState(true);
+
+const isDarkMode=useColorScheme()==="dark"
+
+
   function handleChangepassword(event: any) {
     setPassword(event);
     validatePassword(password);
@@ -126,22 +132,24 @@ function ChangePassword(prop:Proptype) {
     setconfirmPassword('');
   };
   return (
-    <View style={style.container}>
+    <KeyboardAvoidingView style={style.container}>
       <Text style={style.textTitle}>Change Password</Text>
       <Text style={style.inputTitle}>Password</Text>
-      <View>
+      <View style={style.innerContainer}>
         <TextInput
           placeholder="Enter the Password"
           style={[
             style.textInput,
-            {borderColor: isPasswordEmpty ? 'red' : 'black'},
+            {borderColor: isPasswordEmpty ? 'red' : 'black',
+            color: isDarkMode ? 'black'  : 'black'},
           ]}
+          placeholderTextColor={isDarkMode ? 'black'  : 'black'}
           value={password}
           secureTextEntry={isPasswordSecure}
           maxLength={20}
           onChangeText={handleChangepassword}
           onKeyPress={validatePassword}></TextInput>
-        <Icon
+        {/* <Icon
           name={isPasswordSecure ? 'facebook' : 'eye'}
           size={20}
           color="black"
@@ -151,25 +159,27 @@ function ChangePassword(prop:Proptype) {
               ? setIsPasswordSecure(false)
               : setIsPasswordSecure(true)
           }
-        />
+        /> */}
+        <View style={{alignSelf:"center"}}>
         {validationMessage !== '' &&
           validationMessage !== 'Password is valid' && (
             <View style={style.errorMessage}>
               <Text style={style.errorText}>{validationMessage}</Text>
             </View>
           )}
-      </View>
+     </View>
 
       <Text style={style.inputTitle}>Confirm Password</Text>
-      <View>
+  
         <TextInput
           placeholder="Enter the confirmPassword"
-          style={style.textInput}
+          style={[style.textInput,{color: isDarkMode ? 'black'  : 'black'}]}
           value={confirmPassword}
           secureTextEntry={isConfPasswordSecure}
           maxLength={30}
+          placeholderTextColor={isDarkMode ? 'black'  : 'black'}
           onChangeText={handleChangeconfirmPassword}></TextInput>
-        <Icon
+        {/* <Icon
           name={isConfPasswordSecure ? 'eye-off' : 'eye'}
           size={24}
           color="black"
@@ -179,7 +189,7 @@ function ChangePassword(prop:Proptype) {
               ? setIsConfPasswordSecure(false)
               : setIsConfPasswordSecure(true)
           }
-        />
+        /> */}
         {!passwordsMatch && (
           <View style={style.errorMessage}>
             <Text style={style.errorText}>Password Doesn't Match</Text>
@@ -199,7 +209,7 @@ function ChangePassword(prop:Proptype) {
           <Text style={{color: '#fff'}}>Clear</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 const width = Dimensions.get('window').width - 70;
@@ -209,6 +219,7 @@ const style = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    width:width+40
   },
 
   textInput: {
@@ -219,6 +230,10 @@ const style = StyleSheet.create({
     borderRadius: 25,
     paddingLeft: 15,
     marginBottom: 20,
+  },
+  innerContainer:{
+  justifyContent:"center",
+  alignItems:"center"
   },
   inputTitle: {
     alignSelf: 'flex-start',
@@ -260,7 +275,7 @@ const style = StyleSheet.create({
   },
 
   errorMessage: {
-    marginTop: 10,
+    margin: 10,
   },
   errorText: {
     color: 'red',

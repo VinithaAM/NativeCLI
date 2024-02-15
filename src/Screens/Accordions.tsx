@@ -13,16 +13,18 @@ import {
   ScrollView,
   RefreshControl,
   Alert,
+  ActivityIndicator,
+  useColorScheme,
 } from 'react-native';
 import {format} from 'date-fns';
 import Modal from 'react-native-modal';
 import {Dropdown} from 'react-native-element-dropdown';
-import {
-  StarOutlined,
-  StarFilled,
-  StarTwoTone,
-  SafetyOutlined,
-} from '@ant-design/icons';
+// import {
+//   StarOutlined,
+//   StarFilled,
+//   StarTwoTone,
+//   SafetyOutlined,
+// } from '@ant-design/icons';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {
   MasterHistoryData,
@@ -41,8 +43,12 @@ import {
   getCorrectionDetails,
   updatecorrectionDetails,
 } from '../Services/Database';
+import { SafetyOutlined } from '@ant-design/icons';
 
 function Accordions(props: {title: any}) {
+  const [initloading, setIntLoading] = useState(true);
+ 
+ 
   const [ListData, setListData] = useState([]);
   const [viewModalVisible, setViewModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -61,7 +67,7 @@ function Accordions(props: {title: any}) {
   const [refreshDate, setRefreshDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
   //setListData(props);
-
+    const isDarkMode=useColorScheme()==="dark"
   const toggleExpand = () => {
     setViewModalVisible(!viewModalVisible);
     setIsExpand(!isExpand);
@@ -73,6 +79,14 @@ function Accordions(props: {title: any}) {
       setLoading(false);
     });
   };
+  function LoadingAnimation() {
+    return (
+      <View style={style.indicatorWrapper}>
+        <ActivityIndicator size="large" color={'#999999'} />
+        <Text style={[style.indicatorText,{color:isDarkMode?'black':'black'}]}>Loading </Text>
+      </View>
+    );
+  }
   const OnShow = (mode: string) => {
     setShowDatePicker(true);
     setmode(mode);
@@ -83,7 +97,7 @@ function Accordions(props: {title: any}) {
   const renderItemmaster = (item: any) => {
     return (
       <View style={style.item}>
-        <Text style={style.textItem}>{item.historyId}</Text>
+        <Text style={[style.textItem,{color:isDarkMode?'black':'black'}]}>{item.historyId}</Text>
         {item.value === value && <SafetyOutlined />}
       </View>
     );
@@ -171,7 +185,7 @@ function Accordions(props: {title: any}) {
   //   }
   // }, []);
   const onConfirm = async (e: any) => {
-    //console.log('Data', e);
+    console.log('Data', e);
     try {
       // const db = await connectToDatabase();
       // await deletecorrectionDetails(db, e.id).then(result =>
@@ -210,7 +224,7 @@ function Accordions(props: {title: any}) {
     setSelectedItem(item);
   };
   function onChangeStatus(e: any) {
-    const regex = /^[a-zA-Z]*$/;
+    const regex = /^[a-zA-Z@{}%]*$/;
     if (regex.test(e) || e === '') {
       setstatus(e);
     }
@@ -294,7 +308,10 @@ function Accordions(props: {title: any}) {
 
   const handleConfirmDate = (date: any) => {
     var newDate = new Date(date);
-    settimeStamp(newDate);
+    const offset = date.getTimezoneOffset();
+    const utcDate = new Date(date.getTime() - offset * 60000);
+    settimeStamp(utcDate);
+    setDate(newDate)
     hideDatePicker();
   };
   const handleConfirmTime = (event: any) => {
@@ -306,8 +323,11 @@ function Accordions(props: {title: any}) {
   const hideTimePicker = () => {
     setisTimePickerVisible(false);
   };
+
   return (
+ 
     <View style={[style.gridItem, {backgroundColor: 'pink'}]}>
+         {initloading ? (
       <Pressable
         android_ripple={{color: '#ccc'}}
         style={({pressed}) => [
@@ -322,7 +342,7 @@ function Accordions(props: {title: any}) {
           }></ScrollView>
         <View style={style.innerContainer}>
           <View style={style.bodycontainer}>
-            <Text style={style.title}>{selectedItem.historyId} </Text>
+            <Text style={[style.title,{color:isDarkMode?'black':'black'}]}>{selectedItem.historyId} </Text>
             {/* <AntDesign
               name={viewModalVisible ? "downcircle" : "rightcircle"}
               size={24}
@@ -343,6 +363,7 @@ function Accordions(props: {title: any}) {
           </View>
         </View> */}
       </Pressable>
+      ):(<LoadingAnimation />)}
       {isExpand && (
         <View style={style.viewModalView}>
           <View style={style.textContainer}>
@@ -354,7 +375,7 @@ function Accordions(props: {title: any}) {
               }}>
               MasterName :
             </Text>
-            <Text> {selectedItem.historyId} </Text>
+            <Text style={{color:isDarkMode?'black':'black'}}> {selectedItem.historyId} </Text>
           </View>
           <View style={style.textContainer}>
             <Text
@@ -365,7 +386,7 @@ function Accordions(props: {title: any}) {
               }}>
               TimeStamp :
             </Text>
-            <Text>
+            <Text style={{color:isDarkMode?'black':'black'}}>
               {/* {format(selectedItem.TIMESTAMP, 'dd/MM/yyyy HH:mm')} */}
               {format(new Date(selectedItem.timeStamp), 'dd/MM/yyyy HH:mm')}
             </Text>
@@ -379,7 +400,7 @@ function Accordions(props: {title: any}) {
               }}>
               Status :
             </Text>
-            <Text> {selectedItem.statusTags}</Text>
+            <Text style={{color:isDarkMode?'black':'black'}}> {selectedItem.statusTags}</Text>
           </View>
           <View style={style.textContainer}>
             <Text
@@ -390,7 +411,7 @@ function Accordions(props: {title: any}) {
               }}>
               Value :
             </Text>
-            <Text> {selectedItem.correctedValue}</Text>
+            <Text style={{color:isDarkMode?'black':'black'}}> {selectedItem.correctedValue}</Text>
           </View>
           <View style={style.buttonContainer}>
             {/* <Pressable
@@ -419,26 +440,28 @@ function Accordions(props: {title: any}) {
               <Text
                 style={{
                   textAlign: 'center',
-                  fontWeight: 'bold',
+                  fontWeight: '900',
                   color: 'darkblue',
                   fontSize: 20,
+                  marginBottom:10
                 }}>
                 Update Details
               </Text>
-              <View style={style.viewContainer}>
+              <View style={[style.viewContainer,{flex:0.40}]}>
                 <Text
                   style={{
                     fontWeight: 'bold',
                     color: 'black',
-                    fontSize: 12,
+                    fontSize: 13,
+                    alignSelf:"baseline"
                   }}>
                   MasterName :
                 </Text>
                 <Dropdown
                   style={style.dropdown}
-                  placeholderStyle={style.placeholderStyle}
-                  selectedTextStyle={style.selectedTextStyle}
-                  inputSearchStyle={style.inputSearchStyle}
+                  placeholderStyle={[style.placeholderStyle,{color:isDarkMode?'black':'black'}]}
+                  selectedTextStyle={[style.selectedTextStyle,{color:isDarkMode?'black':'black'}]}
+                  inputSearchStyle={[style.inputSearchStyle,{color:isDarkMode?'black':'black'}]}
                   iconStyle={style.iconStyle}
                   data={masterValue}
                   search
@@ -473,7 +496,7 @@ function Accordions(props: {title: any}) {
                 <View style={{flexDirection: 'row'}}>
                   <View style={{flexDirection: 'row'}}>
                     <Pressable onPress={() => showDatePicker()}>
-                      <Text style={style.Datepicker}> Date</Text>
+                      <Text style={[style.Datepicker,{color:isDarkMode?'black':'black'}]}> Date</Text>
                     </Pressable>
                     {/* <Pressable onPress={() => setisTimePickerVisible(true)}>
                       <Text style={style.Datepicker}> Time</Text>
@@ -507,8 +530,9 @@ function Accordions(props: {title: any}) {
                       marginTop: 5,
                       marginBottom: 5,
                       fontSize: 15,
+                      color:isDarkMode?'black':'black'
                     }}>
-                    {format(timeStamp, 'dd/MM/yyyy HH:mm')}
+                    {format(new Date(date), 'dd/MM/yyyy HH:mm')}
                     {/* {timeStamp.toString()} */}
                     {/* {format(timeStamp, 'dd/MM/yyyy HH:mm')} */}
                   </Text>
@@ -524,8 +548,9 @@ function Accordions(props: {title: any}) {
                   Status :
                 </Text>
                 <TextInput
-                  style={style.inputfield}
+                  style={[style.inputfield,{color:isDarkMode?'black':'black'}]}
                   value={status}
+                  placeholder='Enter the Status'
                   onChangeText={onChangeStatus}
                   maxLength={15}></TextInput>
               </View>
@@ -539,11 +564,12 @@ function Accordions(props: {title: any}) {
                   Value :
                 </Text>
                 <TextInput
-                  style={style.inputfield}
+                  style={[{marginLeft:60,color:isDarkMode?'black':'black'},style.inputfield]}
                   keyboardType="numeric"
                   value={correctionValue.toString()}
                   onChangeText={onChangeValue}
-                  maxLength={8}></TextInput>
+                  maxLength={8}
+                  placeholder='Enter the Value'></TextInput>
               </View>
               <View style={style.buttonContainer}>
                 <Pressable
@@ -572,7 +598,7 @@ function Accordions(props: {title: any}) {
               }}>
               Are you sure you want to proceed?
             </Text>
-            <View style={style.viewContainer}>
+            <View style={style.deleteView}>
               <Pressable
                 style={[style.buttonLogin, style.customButton]}
                 onPress={() => {
@@ -592,8 +618,9 @@ function Accordions(props: {title: any}) {
           </View>
         </View>
       </Modal>
-      <View />
+    
     </View>
+  
   );
 }
 const width = Dimensions.get('window').width - 70;
@@ -622,9 +649,9 @@ const style = StyleSheet.create({
     marginRight: 5,
   },
   dropdown: {
-    margin: 10,
+    //margin: 10,
     height: 20,
-    backgroundColor: 'white',
+    backgroundColor: 'lightgray',
     borderRadius: 12,
     padding: 15,
     shadowColor: '#000',
@@ -633,7 +660,7 @@ const style = StyleSheet.create({
       height: 1,
     },
     width: 200,
-    // marginLeft: 70,
+     marginLeft: 10,
     //marginRight: 10,
     //marginLeft: 5,
   },
@@ -666,12 +693,12 @@ const style = StyleSheet.create({
     borderColor: 'blue',
     backgroundColor: 'lightblue',
     // marginRight: 100,
-    marginLeft: 8,
+    marginLeft: 18,
     width: 50,
     alignContent: 'center',
     justifyContent: 'center',
     paddingLeft: 8,
-    marginTop: 10,
+    //marginTop: 10,
     fontWeight: 'bold',
   },
   innerContainer: {
@@ -721,16 +748,16 @@ const style = StyleSheet.create({
   },
   inputfield: {
     width: 200,
-    height: 40,
-    borderRadius: 15,
-    paddingLeft: 20,
-    borderWidth: 2,
-    borderColor: 'blue',
-    marginBottom: 20,
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    marginTop: 10,
-    marginLeft: 5,
+    height: 35,
+     borderRadius: 15,
+     paddingLeft: 15,
+     borderWidth: 2,
+     borderColor: 'blue',
+    // marginBottom: 20,
+    // alignItems: 'center',
+    // paddingHorizontal: 10,
+     marginTop: 5,
+     marginLeft: 55,
   },
   items: {
     flex: 1,
@@ -742,7 +769,7 @@ const style = StyleSheet.create({
     borderRadius: 5,
   },
   modalView: {
-    flexGrow: 0.6,
+    flexGrow: 0.10,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
@@ -752,6 +779,13 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f5c4ef',
+  },
+  deleteView:{
+    flexGrow: 0.4,
+    flexDirection:"row",
+    alignItems:"center",
+    marginLeft:35,
+    marginTop:15,
   },
   gridItem: {
     flex: 1,
@@ -776,6 +810,7 @@ const style = StyleSheet.create({
   },
   viewContainer: {
     flexDirection: 'row',
+   margin:8
     // justifyContent: "center",
     // alignItems: "center",
   },
@@ -837,6 +872,15 @@ const style = StyleSheet.create({
   },
   buttonText: {
     color: 'white',
+  },
+  indicatorWrapper: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  indicatorText: {
+    fontSize: 18,
+    marginTop: 12,
   },
 });
 export default Accordions;

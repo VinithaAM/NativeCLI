@@ -69,9 +69,9 @@ function Sample(prop: Proptype) {
           </View>
         )}
       </View>
-      <View style={style.container}>
+      {/* <View style={style.container}>
         {isJailBreak && <Text> Your App is Hacked Someone</Text>}
-        <Text>Safe</Text>
+        <Text>Safe</Text> */}
         {/* <Pressable style={style.titleContainer}></Pressable> */}
         {/* <Row label="isJailBroken" value={isJailBreak} />
       <Row label="canMockLocation" value={canMockLocation} />
@@ -88,7 +88,7 @@ function Sample(prop: Proptype) {
         label="isDevelopmentSettingsMode"
         value={isDevelopmentSettingsMode}
       /> */}
-      </View>
+      {/* </View> */}
     </>
   );
 }

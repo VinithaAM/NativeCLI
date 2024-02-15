@@ -10,6 +10,8 @@ import {
   Image,
   Alert,
   FlatList,
+  Platform,
+  useColorScheme,
 } from 'react-native';
 import Modal from 'react-native-modal';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
@@ -28,6 +30,7 @@ import {useFocusEffect} from '@react-navigation/native';
 import Sample from './Jail-Monkey';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {ScreenType} from './StackNavigation';
+import ImagePicker from 'react-native-image-picker';
 
 SQLite.enablePromise(true);
 type typeprop = NativeStackScreenProps<ScreenType, 'storage'>;
@@ -40,6 +43,11 @@ function StorageImplementation(prop: typeprop) {
   const [isValid, setIsValidEmail] = useState<boolean>(true);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [userDetails, setUserDetails] = useState([]);
+
+const isDarkMode=useColorScheme()==="dark"
+
+
+
   function handleChangefirstname(event: any) {
     const value = event;
     const sanitizedValue = value.replace(/[^a-zA-Z]/g, '');
@@ -57,88 +65,32 @@ function StorageImplementation(prop: typeprop) {
     setIsValidEmail(isValidEmail);
   }
   const [images, setImages] = useState(false);
-  const [camerapermission,setcameraPermission]=useState<any>()
+  const [camerapermission, setcameraPermission] = useState<any>();
+  const [mediapermission, setmediapermission] = useState<any>();
+  const [showComponent,setShowComponent]=useState(false)
+  const selectImage = () => {
+    setShowComponent(true)
+  };
   const requestPermission = async () => {
-    const grand = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.CAMERA,
-    );
-    setcameraPermission(grand)
-    console.log("camerapermission",camerapermission)
-    const mediapermission = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
-    );
-    console.log('granted', grand,mediapermission);
-    let Options = {
-      path: 'image',
-      multiple: true,
-      includeBase64: true,
-      maxHeight: 200,
-      maxWidth: 200,
-    };
-    if (grand == PermissionsAndroid.RESULTS.GRANTED) {
-      await launchCamera(Options, response => {
-        console.log(response);
-        if (response.didCancel) {
-          console.warn('User cancelled image picker');
-        } else if (response.assets) {
-          setselectedImage(response?.assets[0]?.uri);
-          //convertToByteArray(selectedImage);
-          setProfilePicture(response?.assets[0]?.base64);
-        }
-      });
-    } else if(mediapermission == PermissionsAndroid.RESULTS.GRANTED){
-      await launchImageLibrary(Options, response => {
-        //console.log(response);
-        if (response.didCancel) {
-          console.warn('User cancelled image picker');
-        } else if (response.assets) {
-          setselectedImage(response?.assets[0]?.uri);
-          setProfilePicture(Options.includeBase64);
-          // console.log(selectedImage);
-          convertToByteArray(response?.assets[0]?.uri);
-        }
-      });
+    if (Platform.OS === 'android') {
+      const grand = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+      );
+      setcameraPermission(grand);
+      console.log('camerapermission', camerapermission);
+    } else if (Platform.OS === 'ios') {
     }
-    else{
-      Alert.alert("No media permission for this Application...")
+    if (Platform.OS === 'android') {
+      const mediapermission = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+      );
+      setmediapermission(mediapermission);
+    } else if (Platform.OS === 'ios') {
     }
   };
   const [selectedImage, setselectedImage] = useState('');
   const [Isvalid, setIsValid] = useState(false);
-  const ImagePicker = async () => {
-    let Options = {
-      path: 'image',
-      multiple: true,
-      includeBase64: true,
-      maxHeight: 200,
-      maxWidth: 200,
-    };
-    // console.log(images);
-    if (images === true) {
-      await launchCamera(Options, response => {
-        console.log(response);
-        if (response.didCancel) {
-          console.warn('User cancelled image picker');
-        } else if (response.assets) {
-          setselectedImage(response?.assets[0]?.uri);
-          setProfilePicture(Options.includeBase64);
-          //convertToByteArray(selectedImage);
-        }
-      });
-    } else {
-      await launchImageLibrary(Options, response => {
-        //console.log(response);
-        if (response.didCancel) {
-          console.warn('User cancelled image picker');
-        } else if (response.assets) {
-          setselectedImage(response?.assets[0]?.uri);
-          setProfilePicture(Options.includeBase64);
-          // console.log(selectedImage);
-          //convertToByteArray(response?.assets[0]?.uri);
-        }
-      });
-    }
-  };
+
   function handleClear() {
     setfirstName('');
     setImages(false);
@@ -153,18 +105,33 @@ function StorageImplementation(prop: typeprop) {
       Profilepic: profilePicture,
     };
     const db = await connectToDatabase();
-    //console.log(firstName, email, profilePicture);
-    if (firstName != '' && email != '') {
+    console.log(isValid);
+    if (
+      firstName !== '' &&
+      email !== '' &&
+      profilePicture !== '' &&
+      isValid !== false
+    ) {
       try {
-        addDetails(db, params).then(result => console.log(result));
-        // getUserdetails();
-        handleClear();
-        setIsValid(true);
+        addDetails(db, params).then(result =>{
+          if(result[0].rowsAffected=1){
+              Alert.alert("Saved Successfully")
+              handleClear();
+              setIsValid(true);
+          }
+          else{
+            Alert.alert("issue in saving file..")
+          }
+        } );
       } catch {
         (error: any) => console.log(error);
       }
+    } else if (isValid !== true) {
+      setIsUserNameEmpty(true);
+      Alert.alert('Please enter valid Email');
     } else {
-      console.warn('Please Fill all the field');
+      setIsUserNameEmpty(true);
+      setIsFirstNameEmpty(true)
       Alert.alert('Please Fill all the field');
     }
   };
@@ -180,12 +147,82 @@ function StorageImplementation(prop: typeprop) {
 
   useEffect(() => {
     loadData();
+    requestPermission()
+    checkPermission()
   }, [loadData]);
   useFocusEffect(
     useCallback(() => {
+      checkPermission()
+      requestPermission()
       // getUserdetails();
     }, []),
   );
+  const checkPermission=()=>{
+    if(camerapermission==="never_ask_again"){
+      requestPermission()
+    }
+  }
+  const onHandleCameraFunction =async ()=>{
+    let Options = {
+      path: 'image',
+      multiple: true,
+      includeBase64: true,
+      maxHeight: 200,
+      maxWidth: 200,
+    };
+    var grand;
+    console.log("cccc",camerapermission)
+    if (camerapermission === PermissionsAndroid.RESULTS.GRANTED) {
+      await launchCamera(Options, response => {
+        console.log(response);
+        if (response.didCancel) {
+          console.warn('User cancelled image picker');
+        } else if (response.assets) {
+          setselectedImage(response?.assets[0]?.uri);onModelHide()
+          // setShowComponent(true)
+          //convertToByteArray(selectedImage);
+          setProfilePicture(response?.assets[0]?.base64);
+          onModelHide()
+        }
+      });
+    }
+    // else if(camerapermission==="never_ask_again"){
+    //   setcameraPermission('')
+    //  requestPermission()
+    // }
+    else{
+      Alert.alert("There is no camera permission for this app.....")
+    }
+  }
+  const onModelHide=()=>{
+    setShowComponent(false)
+  }
+  const onHandleMediaFunction=async ()=>{
+    let Options = {
+      path: 'image',
+      multiple: true,
+      includeBase64: true,
+      maxHeight: 200,
+      maxWidth: 200,
+    };
+    if (mediapermission === PermissionsAndroid.RESULTS.GRANTED) {
+    await launchImageLibrary(Options, response => {
+      //console.log(response);
+      if (response.didCancel) {
+        console.warn('User cancelled image picker');
+      } else if (response.assets) {
+        setselectedImage(response?.assets[0]?.uri);
+        setProfilePicture(Options.includeBase64);
+        // console.log(selectedImage);
+        convertToByteArray(response?.assets[0]?.uri);
+        onModelHide()
+      }
+    });
+  }
+  else{
+    Alert.alert("There is no Media permission for this app.....")
+  }
+  }
   const convertToByteArray = async (image: string) => {
     // console.log('imagefor save', image);
     if (image) {
@@ -194,7 +231,6 @@ function StorageImplementation(prop: typeprop) {
       console.log('base', imageBase64);
       if (imageBase64) {
         const byteArray = base64ToByteArray(imageBase64);
-
         setProfilePicture(imageBase64);
       }
     }
@@ -266,13 +302,15 @@ function StorageImplementation(prop: typeprop) {
 
   return (
     <View style={style.container}>
-      <Text style={{fontSize: 25, color: 'blue'}}>Profile</Text>
+      <Text style={{fontSize: 25,fontWeight:"900", color: '#3246a8'}}>Profile</Text>
       <Text style={style.inputTitle}>Firstname</Text>
       <TextInput
         placeholder="Enter the Firstame"
+        placeholderTextColor={isDarkMode ? 'black'  : 'black'}
         style={[
           style.textInput,
-          {borderColor: isFirstNameEmpty ? 'red' : 'black'},
+          {borderColor: isFirstNameEmpty ? 'red' : 'black',
+          color:isDarkMode?'black':'black'},
         ]}
         value={firstName}
         maxLength={30}
@@ -280,14 +318,16 @@ function StorageImplementation(prop: typeprop) {
       <Text style={style.inputTitle}>Username</Text>
       <TextInput
         placeholder="Enter the Username"
+        placeholderTextColor={isDarkMode ? 'black'  : 'black'}
         style={[
           style.textInput,
-          {borderColor: isUserNameEmpty ? 'red' : 'black'},
+          {borderColor: isUserNameEmpty ? 'red' : 'black',
+          color:isDarkMode?'black':'black'},
         ]}
         value={email}
         keyboardType="email-address"
         autoCapitalize="none"
-        maxLength={30}
+        maxLength={50}
         onChangeText={handleChangeemail}></TextInput>
       {!isValid && (
         <View style={style.errorMessage}>
@@ -300,7 +340,7 @@ function StorageImplementation(prop: typeprop) {
           <TouchableOpacity
             style={[style.uploadbutton]}
             onPress={() => {
-              requestPermission();
+              selectImage();
             }}>
             <Text style={{color: '#fff'}}>Select Image</Text>
           </TouchableOpacity>
@@ -323,22 +363,34 @@ function StorageImplementation(prop: typeprop) {
           <Text style={{color: '#fff'}}> Clear</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[style.buttonClear, style.customButton]}
+          style={[style.buttonGet, style.customButton]}
           onPress={getUserdetails}>
           <Text style={{color: '#fff'}}> Get</Text>
         </TouchableOpacity>
       </View>
-      {/* <Image
-        source={{uri: `data:image/png;base64,${base64stringImage}`}}
-        style={{width: 50, height: 50}}
-      /> */}
-      <View>
-        <Image
-          source={{
-            uri: `data:image/png;base64,${base64stringImage}`,
-          }}
-          style={{width: 50, height: 50}}></Image>
-      </View>
+      {showComponent && (
+        <Modal animationIn="slideInUp" isVisible={showComponent} onModalHide={onModelHide}> 
+        
+        <View style={style.modalView}>
+        <Text style={{fontWeight:"900",color:"#0e20e6",marginRight:180,fontSize:20,marginBottom:15}}>Add New</Text>
+        <TouchableOpacity
+          // style={[style.buttonClear, style.customButton]}
+          onPress={onHandleCameraFunction}>
+        <Text style={{fontWeight:"900",alignSelf:"flex-start",marginRight:180,color:isDarkMode?'black':'black'}}>Take photo</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          // style={[style.buttonClear, style.customButton]}
+          onPress={onHandleMediaFunction}>
+        <Text style={{fontWeight:"900",alignSelf:"flex-start",marginRight:180,marginTop:15,color:isDarkMode?'black':'black'}}>Select file</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          // style={[style.buttonClear, style.customButton]}
+          onPress={onModelHide}>
+        <Text style={{fontWeight:"900",alignSelf:"flex-start",marginLeft:180,marginTop:10,color:"#e61c0e"}}>Cancel</Text>
+        </TouchableOpacity>
+    </View>
+    </Modal>
+      )}
     </View>
   );
 }
@@ -351,6 +403,13 @@ const style = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  modalView: {
+    flexGrow: 0.15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+   
   },
   inputTitle: {
     alignSelf: 'flex-start',
@@ -396,6 +455,10 @@ const style = StyleSheet.create({
   },
   buttonLogin: {
     backgroundColor: 'green',
+    textAlign: 'center',
+  },
+  buttonGet: {
+    backgroundColor: '#4267B2',
     textAlign: 'center',
   },
   buttonClear: {

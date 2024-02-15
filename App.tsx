@@ -10,7 +10,7 @@ import {PermissionsAndroid, Linking} from 'react-native';
 import {Button} from 'react-native-elements';
 import messaging, {firebase} from '@react-native-firebase/messaging';
 import PushNotification from 'react-native-push-notification';
-import {Notifications} from 'react-native-notifications';
+import {Notification, Notifications} from 'react-native-notifications';
 import {
   NotificationListner,
   requestuserpermission,
@@ -70,14 +70,28 @@ function App(): JSX.Element {
           JSON.stringify(remoteMessage.notification?.body),
         );
       }
-
-      PushNotification.localNotification({
-        message: remoteMessage.notification?.body,
-        title: remoteMessage.notification?.title,
-        bigPictureUrl: remoteMessage.notification?.android?.imageUrl,
-        smallIcon: remoteMessage.notification?.android?.imageUrl,
-        // channelId: 'Default channel',
-      });
+      PushNotification.localNotification(
+        {
+          channelId: "channel-id", // (required)
+          //channelName: "My channel", // (required)
+          //channelDescription: "A channel to categorise your notifications", // (optional) default: undefined.
+          playSound: true, // (optional) default: true
+         // soundName: "default", // (optional) See `soundName` parameter of `localNotification` function
+          //importance: "high", // (optional) default: 4. Int value of the Android notification importance
+          //vibrate: true, 
+          message: remoteMessage.notification?.body,
+          title: remoteMessage.notification?.title,
+      //   title: remoteMessage.notification?.title,// (optional) default: true. Creates the default vibration patten if true.
+        } // (optional) callback returns whether the channel was created, false means it already existed.
+      );
+      // PushNotification.localNotification({
+      //   message: remoteMessage.notification?.body,
+      //   title: remoteMessage.notification?.title,
+      //      bigPictureUrl: remoteMessage.notification?.android?.imageUrl,
+      //      smallIcon: remoteMessage.notification?.android?.imageUrl,
+      //      channelId:"default"
+      //    //channelId: 'default',
+      // });
       // Notifications.events().registerNotificationReceivedForeground(
       //   (notification, completion) => {
       //     console.log('Notification Received - Foreground', notification);
@@ -105,11 +119,6 @@ function App(): JSX.Element {
       //   //   // smallIcon: remoteMessage.notification.android.imageUrl,
       // });
     });
-    // PushNotification.register();
-    // return () => {
-    //   // Clean up
-    //   PushNotification.unregister();
-    // };
     return unsubscribe;
   }, [loadData]);
 

@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios, {AxiosRequestConfig} from 'axios';
+import { useState } from 'react';
+import { Alert } from 'react-native';
 
 //apiSerive for login
 
@@ -55,9 +57,10 @@ export const register = async (loginDetails: any) => {
 // apiService for HistoryData
 export const getHistoryCorrection = async () => {
   const token = await AsyncStorage.getItem('LoginResponse');
+  const Authtoken=JSON.parse(token).token;
   const headers = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
+    Authorization: `Bearer ${Authtoken}`,
     // Accept: "application/json",
   };
   const requestConfig: AxiosRequestConfig = {
@@ -73,9 +76,10 @@ export const getHistoryCorrection = async () => {
 };
 export const MasterHistoryData = async () => {
   const token = await AsyncStorage.getItem('LoginResponse');
+  const Authtoken=JSON.parse(token).token;
   const headers = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
+    Authorization: `Bearer ${Authtoken}`,
     // Accept: "application/json",
   };
   const requestConfig: AxiosRequestConfig = {
@@ -97,9 +101,10 @@ export const MasterHistoryData = async () => {
 // API Call for New item add
 export const AddNewItem = async (ItemDetails: any) => {
   const token = await AsyncStorage.getItem('LoginResponse');
+  const Authtoken=JSON.parse(token).token;
   const headers = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
+    Authorization: `Bearer ${Authtoken}`,
     // Accept: "application/json",
   };
   const requestConfig: AxiosRequestConfig = {
@@ -118,9 +123,10 @@ export const AddNewItem = async (ItemDetails: any) => {
 };
 export const updateCorrectionDetails = async (updateDetails: any) => {
   const token = await AsyncStorage.getItem('LoginResponse');
+  const Authtoken=JSON.parse(token).token;
   const headers = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
+    Authorization: `Bearer ${Authtoken}`,
     // Accept: "application/json",
   };
   const requestConfig: AxiosRequestConfig = {
@@ -139,9 +145,10 @@ export const updateCorrectionDetails = async (updateDetails: any) => {
 };
 export const deleteCorrection = async (id: any) => {
   const token = await AsyncStorage.getItem('LoginResponse');
+  const Authtoken=JSON.parse(token).token;
   const headers = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
+    Authorization: `Bearer ${Authtoken}`,
     // Accept: "application/json",
   };
   const requestConfig: AxiosRequestConfig = {
@@ -158,17 +165,23 @@ export const deleteCorrection = async (id: any) => {
   }
 };
 export const forgetPassword = async (email: any) => {
-  const token = await AsyncStorage.getItem('LoginResponse');
+  // const token = await AsyncStorage.getItem('LoginResponse');
+  // console.log("token",token)
+  // const [AuthToken,setAuthtoken]=useState('')
+  // if(token !==null && token !==undefined){
+  //   const tokenstring=JSON.parse(token).token;
+  //   setAuthtoken(tokenstring)
+  // }
+
   const headers = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
+    //Authorization: `Bearer ${AuthToken}`,
     // Accept: "application/json",
   };
   const requestConfig: AxiosRequestConfig = {
     headers: headers,
   };
   try {
-    console.log("email",email)
     const result = await axios.get(
       url + `/Login/ForgetPassword?Mail=${email}`,
       requestConfig,
@@ -179,17 +192,23 @@ export const forgetPassword = async (email: any) => {
   }
 };
 export const validateOTP = async (otp: any) => {
-  const token = await AsyncStorage.getItem('LoginResponse');
+  // const token = await AsyncStorage.getItem('LoginResponse');
+  // const [AuthToken,setAuthtoken]=useState('')
+  // if(token){
+  //   console.log("token",token)
+  //   const tokenstring=JSON.parse(token).token;
+  //   setAuthtoken(tokenstring)
+  // }
+ 
   const headers = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
+   // Authorization: `Bearer ${AuthToken}`,
     // Accept: "application/json",
   };
   const requestConfig: AxiosRequestConfig = {
     headers: headers,
   };
   try {
-    console.log("email",otp)
     const result = await axios.get(
       url + `/Login/ValidateOTP?Id=${otp.Id}&otp=${otp.OTP}`,
       requestConfig,
@@ -200,10 +219,12 @@ export const validateOTP = async (otp: any) => {
   }
 };
 export const changePassword = async (obj: any) => {
-  const token = await AsyncStorage.getItem('LoginResponse');
+  // const token = await AsyncStorage.getItem('LoginResponse');
+  // const Authtoken=JSON.parse(token).token;
+
   const headers = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
+   // Authorization: `Bearer ${Authtoken}`,
     // Accept: "application/json",
   };
   const requestConfig: AxiosRequestConfig = {
@@ -220,3 +241,57 @@ export const changePassword = async (obj: any) => {
     return error.response.data;
   }
 };
+export const detailsBySearch = async (obj: any) => {
+  const token = await AsyncStorage.getItem('LoginResponse');
+  const Authtoken=JSON.parse(token).token;
+
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${Authtoken}`,
+    // Accept: "application/json",
+  };
+  const requestConfig: AxiosRequestConfig = {
+    headers: headers,
+  };
+  try {
+    const result = await axios.get(
+      url + `/HistoryData/GetBySearch?searchtext=${obj}`,
+      requestConfig,
+    );
+    return result;
+  } catch (error: any) {
+    return error.response.data;
+  }
+};
+export const refreshToken = async (obj: any) => {
+  const token = await AsyncStorage.getItem('LoginResponse');
+  const Authtoken=JSON.parse(token).token;
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${Authtoken}`,
+    // Accept: "application/json",
+  };
+  const requestConfig: AxiosRequestConfig = {
+    headers: headers,
+  };
+  try {
+    const result = await axios.get(
+      url + `/Login/TokenRefresh?id=${obj}`,
+      requestConfig,
+    );
+    if (result.data.status === 'Failed') {
+      //Toast.show(result.data.message, Toast.SHORT);
+      Alert.alert(result.data.message);
+    } else if (result.data.status === 'Success') {
+      AsyncStorage.removeItem("LoginResponse")
+      AsyncStorage.setItem(
+        'LoginResponse',
+        JSON.stringify(result.data.data),
+      );
+    }
+    return result;
+  } catch (error: any) {
+    return error.response.data;
+  }
+};
+

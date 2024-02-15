@@ -12,6 +12,7 @@ import {
   Linking,
   Image,
   ToastAndroid,
+  useColorScheme,
 } from 'react-native';
 import {forgetPassword, login} from '../Services/CommonService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -27,6 +28,8 @@ function ForgetPassword(prop: Proptype) {
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const isDarkMode=useColorScheme()==="dark"
   const onPressClear = () => {
     setUserName('');
     setPassword('');
@@ -87,7 +90,7 @@ function ForgetPassword(prop: Proptype) {
     return (
       <View style={style.indicatorWrapper}>
         <ActivityIndicator size="large" color={'#999999'} />
-        <Text style={style.indicatorText}>Loading </Text>
+        <Text style={[style.indicatorText,{color:isDarkMode?'black':'black'}]}>Loading ...</Text>
       </View>
     );
   }
@@ -116,9 +119,11 @@ function ForgetPassword(prop: Proptype) {
             placeholder="Enter the Username"
             style={[
               style.textInput,
-              {borderColor: isUserNameEmpty ? 'red' : 'black'},
+              {borderColor: isUserNameEmpty ? 'red' : 'black',
+              color: isDarkMode ? 'black'  : 'black'},
             ]}
             value={userName}
+            placeholderTextColor={isDarkMode ? 'black'  : 'black'}
             onChangeText={onChangeUsername}
             maxLength={50}></TextInput>
           {!isValid && (

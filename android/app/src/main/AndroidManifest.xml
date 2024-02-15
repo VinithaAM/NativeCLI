@@ -10,6 +10,7 @@
       <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
       <uses-permission android:name="android.permission.PUSH_NOTIFICATIONS" />
       <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+      <uses-permission android:name="android.permission.NOTIFICATIONS" />
 
     <application
       android:name=".MainApplication"
@@ -25,6 +26,7 @@
         android:launchMode="singleTask"
         android:windowSoftInputMode="adjustResize"
         android:exported="true">
+            <meta-data android:name="com.dieam.reactnativepushnotification.notification_foreground" android:value="false"/>
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />

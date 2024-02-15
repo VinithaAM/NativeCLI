@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, {useCallback, useEffect, useState} from 'react';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
 // import Toast from 'react-native-toast';
 import {
   TextInput,
@@ -19,6 +20,7 @@ import {
   Pressable,
   Clipboard,
   ScrollView,
+  useColorScheme,
 } from 'react-native';
 // import { MaterialCommunityIcons } from "@expo/vector-icons/";
  import {login} from '../Services/CommonService';
@@ -26,11 +28,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {ScreenType} from './StackNavigation';
 // import {AntDesign} from '@expo/vector-icons';
-import Icon from 'react-native-vector-icons/FontAwesome';
+// import Icon from 'react-native-vector-icons/FontAwesome';
 import Modal from 'react-native-modal';
 import {useFocusEffect} from '@react-navigation/native';
 import JailMonkey from 'jail-monkey';
+// import { EyeInvisibleOutlined } from '@ant-design/icons';
+// import { EyeInvisibleOutlined } from '@ant-design/icons-react-native';
 //import {connectToDatabase, login} from '../Services/Database';
+// import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 type Proptype = NativeStackScreenProps<ScreenType, 'LoginPage'>;
 
@@ -40,9 +46,11 @@ function LoginPage(prop: Proptype) {
   const [password, setPassword] = useState('');
   const [isPasswordSecure, setIsPasswordSecure] = useState(true);
   const [loading, setLoading] = useState(false);
+  const isDarkMode = useColorScheme() === 'dark';
 
   useEffect(() => {
     TokenFetch();
+    IsCheckJailBreak()
   }, [Token]);
   const onPressClear = () => {
     setUserName('');
@@ -105,7 +113,7 @@ function LoginPage(prop: Proptype) {
             AsyncStorage.setItem(
               'LoginResponse',
 
-              result.data.data.token,
+              JSON.stringify(result.data.data),
             );
 
             setUserName('');
@@ -135,6 +143,7 @@ function LoginPage(prop: Proptype) {
   const onHandleForgetPassword = () => {
     navigation.navigate('ForgetPassword');
   };
+ 
   //const isPasswordEmpty = password.trim() === "";
   const [validationMessage, setValidationMessage] = useState('');
   const [isPasswordEmpty, setIsPasswordEmpty] = useState(false);
@@ -165,11 +174,47 @@ function LoginPage(prop: Proptype) {
       setValidationMessage('Password is valid');
     }
   };
+  const [isDebuggedMode, setIsDebuggedMode] = useState<boolean>();
+  const [isJailBreak, setJailBreak] = useState(false);
+  const [canMockLocation, setCanMockLocation] = useState(false);
+  const [trustFall, settrustFall] = useState(false);
+  const [hookDetected, sethookDetected] = useState(false);
+  const [isOnExternalStorage, setisOnExternalStorage] = useState(false);
+  const [AdbEnabled, setAdbEnabled] = useState(false);
+  const [ispageLoad, setpageLoad] = useState(false);
+  const [isDevelopmentSettingsMode, setIsDevelopmentSettingsMode] =
+  useState<boolean>(false);
+  const IsCheckJailBreak = () => {
+    setJailBreak(JailMonkey.isJailBroken());
+    setCanMockLocation(JailMonkey.canMockLocation());
+    setAdbEnabled(JailMonkey.AdbEnabled());
+    sethookDetected(JailMonkey.hookDetected());
+    setisOnExternalStorage(JailMonkey.isOnExternalStorage());
+    settrustFall(JailMonkey.trustFall());
+    JailMonkey.isDevelopmentSettingsMode()
+      .then(value => {
+        setIsDevelopmentSettingsMode(value);
+      })
+      .catch(console.warn);
+    JailMonkey.isDebuggedMode()
+      .then(value => {
+        setIsDebuggedMode(value);
+      })
+      .catch(console.warn);
+      InitialLoad()
+  };
+  const InitialLoad = () => {
+    if (isJailBreak) {
+      setpageLoad(true);
+    } else {
+      navigation.navigate('LoginPage');
+    }
+  };
   function LoadingAnimation() {
     return (
       <View style={style.indicatorWrapper}>
         <ActivityIndicator size="large" color={'#999999'} />
-        <Text style={style.indicatorText}>Loading </Text>
+        <Text style={[style.indicatorText,{color:isDarkMode?'black':'black'}]}>Loading ...</Text>
       </View>
     );
   }
@@ -196,6 +241,12 @@ function LoginPage(prop: Proptype) {
   };
   return (
     <>
+     {ispageLoad? (
+          <View style={style.container}>
+            <Text> Your App is Hacked Someone</Text>
+          </View>
+        ):(
+          <View style={style.container}>
       {loading ? (
         <LoadingAnimation />
       ) : (
@@ -204,14 +255,21 @@ function LoginPage(prop: Proptype) {
             source={require('../assets/profilepic.png')}
             style={{width: 50, height: 50}}
           />
-          <Text style={style.textTitle}>Welcome</Text>
+            {/* <Icon name="rss" size={30} color="#900" /> */}
+         {/* <EyeInvisibleOutlined style={{ fontSize: 24, color: 'black' }} /> */}
+          <Text style={[style.textTitle,{ color: isDarkMode ? '#3246a8'  : '#3246a8'}]}>Welcome</Text>
           <Text style={style.inputTitle}>UserName</Text>
           <TextInput
+          
             placeholder="Enter the Username"
             style={[
               style.textInput,
-              {borderColor: isUserNameEmpty ? 'red' : 'black'},
+              {borderColor: isUserNameEmpty ? 'red' : 'black',
+              color: isDarkMode ? 'black'  : 'black',
+              
+            },
             ]}
+            placeholderTextColor={isDarkMode ? 'black'  : 'black'}
             value={userName}
             onChangeText={onChangeUsername}
             maxLength={50}></TextInput>
@@ -221,8 +279,10 @@ function LoginPage(prop: Proptype) {
               placeholder="Enter the Password"
               style={[
                 style.textInput,
-                {borderColor: isPasswordEmpty ? 'red' : 'black'},
+                {borderColor: isPasswordEmpty ? 'red' : 'black',
+                color: isDarkMode ? 'black'  : 'black'},
               ]}
+              placeholderTextColor={isDarkMode ? 'black'  : 'black'}
               value={password}
               maxLength={30}
               secureTextEntry={isPasswordSecure}
@@ -279,6 +339,7 @@ function LoginPage(prop: Proptype) {
           <Text style={style.buttonText}>Token</Text>
         </TouchableOpacity> */}
       </View>
+     
       {openMessage && (
         <View>
           <Modal
@@ -304,10 +365,13 @@ function LoginPage(prop: Proptype) {
           </Modal>
         </View>
       )}
+      </View>
+       )}
     </>
   );
 }
 const width = Dimensions.get('window').width - 70;
+
 const style = StyleSheet.create({
   container: {
     flexGrow: 1,
@@ -371,7 +435,7 @@ const style = StyleSheet.create({
     textAlign: 'center',
   },
   textTitle: {
-    color: '#3246a8',
+    // color: isDarkMode?'#3246a8':'#3246a8',
     fontWeight: 'bold',
     fontFamily: 'sans-serif',
     fontSize: 20,
