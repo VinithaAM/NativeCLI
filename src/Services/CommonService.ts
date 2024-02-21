@@ -94,7 +94,7 @@ export const MasterHistoryData = async () => {
     //.log("result", result);
     return result;
   } catch (error: any) {
-    console.log('err', error);
+   // console.log('err', error);
     return error.response;
   }
 };
@@ -271,6 +271,7 @@ export const refreshToken = async (obj: any) => {
     Authorization: `Bearer ${Authtoken}`,
     // Accept: "application/json",
   };
+  console.log("for",obj)
   const requestConfig: AxiosRequestConfig = {
     headers: headers,
   };
@@ -279,10 +280,13 @@ export const refreshToken = async (obj: any) => {
       url + `/Login/TokenRefresh?id=${obj}`,
       requestConfig,
     );
+   
     if (result.data.status === 'Failed') {
+      console.log(result.data.message,result.request)
       //Toast.show(result.data.message, Toast.SHORT);
-      Alert.alert(result.data.message);
+      //Alert.alert(result.data.message);
     } else if (result.data.status === 'Success') {
+      // console.log(result.data.data)
       AsyncStorage.removeItem("LoginResponse")
       AsyncStorage.setItem(
         'LoginResponse',

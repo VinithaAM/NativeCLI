@@ -18,6 +18,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Accordions from './Accordions';
 import {connectToDatabase, getCorrectionDetails} from '../Services/Database';
+import { MasterData } from '../Components/dummyData';
 
 type Proptype = NativeStackScreenProps<ScreenType, 'FlatListPage'>;
 function DataCorrectionListPage(prop: Proptype) {
@@ -36,7 +37,10 @@ function DataCorrectionListPage(prop: Proptype) {
       getHistoryCorrection()
         .then((result: any) => {
           if (result.data.status == 'Success') {
+        
             setListData(result.data.data);
+            
+            console.log(new Date())
           }
         })
         .catch((error: any) => {
@@ -49,27 +53,33 @@ function DataCorrectionListPage(prop: Proptype) {
    // handletoken()
   };
       const [userId,setUserId]=useState(0);
-  useEffect(async () => {
-    const Userdetails= await AsyncStorage.getItem('LoginResponse');
-    const id=JSON.parse(Userdetails).id
-    console.log("id",id)
-    setUserId(id)
-    setTimeout(() => {
-      getHistoryData();
+  useEffect( () => {
+    //handletoken()
+    const interval = setInterval(() => {
+      handletoken() 
+  }, 300000);
+  const settime=setInterval(()=>{
+    getHistoryData();
+  },60000)
+    // setTimeout(() => {
+    //   getHistoryData();
      
-    }, 5000);
-  }, []);
+    // }, 5000);
+    return () => {clearInterval(interval),clearInterval(settime)};
+  }, [ListData]);
   useFocusEffect(
     useCallback(() => {
       getHistoryData();
+      handletoken()
     }, []),
   );
   const handletoken = async () => {
-  
-    refreshToken(userId).catch(error=>console.log("Error in Token",error))
-    const intervalId = setInterval(refreshToken, 300000);
-    console.log("intervalId",intervalId)
-     clearInterval(intervalId);
+    const Userdetails= await AsyncStorage.getItem('LoginResponse');
+    const id=JSON.parse(Userdetails).id
+    await refreshToken(id).catch(error=>console.log("Error in Token",error))
+    //const intervalId = setInterval(refreshToken, 300000);
+    // console.log("intervalId",intervalId)
+     //clearInterval(intervalId);
   };
   function renderItems(e: any) {
     return (

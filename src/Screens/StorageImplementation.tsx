@@ -174,7 +174,7 @@ const isDarkMode=useColorScheme()==="dark"
     console.log("cccc",camerapermission)
     if (camerapermission === PermissionsAndroid.RESULTS.GRANTED) {
       await launchCamera(Options, response => {
-        console.log(response);
+       // console.log(response);
         if (response.didCancel) {
           console.warn('User cancelled image picker');
         } else if (response.assets) {
@@ -209,7 +209,7 @@ const isDarkMode=useColorScheme()==="dark"
     await launchImageLibrary(Options, response => {
       //console.log(response);
       if (response.didCancel) {
-        console.warn('User cancelled image picker');
+        console.log('User cancelled image picker');
       } else if (response.assets) {
         setselectedImage(response?.assets[0]?.uri);
         setProfilePicture(Options.includeBase64);
@@ -228,7 +228,7 @@ const isDarkMode=useColorScheme()==="dark"
     if (image) {
       const imagePath = `${image}`;
       const imageBase64 = await RNFS.readFile(imagePath, 'base64');
-      console.log('base', imageBase64);
+      // console.log('base', imageBase64);
       if (imageBase64) {
         const byteArray = base64ToByteArray(imageBase64);
         setProfilePicture(imageBase64);

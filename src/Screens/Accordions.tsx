@@ -133,7 +133,7 @@ function Accordions(props: {title: any}) {
     return i.historyId;
   };
   const onUpdateDetails = async (item: any) => {
-    console.log('update', item);
+    //console.log('update', item);
     let params = {
       id: item.id,
       historyId: historyId,
@@ -146,7 +146,7 @@ function Accordions(props: {title: any}) {
       lastModifiedBy: 1,
       dateModified: new Date(),
     };
-    console.log('param', params);
+    //console.log('param', params);
     try {
       // const db = await connectToDatabase();
       // updatecorrectionDetails(db, params).then(result => {
@@ -185,7 +185,7 @@ function Accordions(props: {title: any}) {
   //   }
   // }, []);
   const onConfirm = async (e: any) => {
-    console.log('Data', e);
+    //console.log('Data', e);
     try {
       // const db = await connectToDatabase();
       // await deletecorrectionDetails(db, e.id).then(result =>
@@ -271,7 +271,7 @@ function Accordions(props: {title: any}) {
       if ((result.data.status = 'Success')) {
         props = result.data.data;
         var filtereted = result.data.data.filter(
-          (x: any) => x.historyId == selectedItem.historyId)[0];
+          (x: any) => x.id == selectedItem.id)[0];
         if (filtereted) {
           setSelectedItem(filtereted);
         }
@@ -447,7 +447,7 @@ function Accordions(props: {title: any}) {
                 }}>
                 Update Details
               </Text>
-              <View style={[style.viewContainer,{flex:0.40}]}>
+              <View style={[style.viewContainer,{flex:0.50}]}>
                 <Text
                   style={{
                     fontWeight: 'bold',

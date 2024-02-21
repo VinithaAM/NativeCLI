@@ -13,6 +13,7 @@ import {
   SectionList,
   Alert,
   useColorScheme,
+  ScrollView
 } from 'react-native';
 import Modal from 'react-native-modal';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
@@ -22,7 +23,6 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {getHistoryCorrection} from '../Services/CommonService';
 import {connectToDatabase, getDetails} from '../Services/Database';
 import {Card, ListItem} from 'react-native-elements';
-import { ScrollView } from 'react-native-gesture-handler';
 import TruncatedTextWithTooltip from '../Components/ToolTip';
 
 type typeprop = NativeStackScreenProps<ScreenType, 'ViewModel'>;
@@ -110,12 +110,13 @@ function ViewModelData(prop: typeprop) {
                 rightTitle="Right Title"
                 onPress={() => console.log('ListItem pressed')}
               ></ListItem> */}
+              <ScrollView>
             
               {userDetails.map((x, index) => (
                 <>
                 <View style={{flexDirection:"row",marginRight:10,justifyContent:"space-evenly"}}>
                 <View
-                     key = {x.id}
+                     key = {index}
                      style = {style.ListView}>
                      {/* <Text style = {style.text}>
                         {x.Name}
@@ -144,6 +145,7 @@ function ViewModelData(prop: typeprop) {
                
                 </>
               ))}
+              </ScrollView>
                </View>
            
           )}
@@ -195,7 +197,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     margin: 10,
-    flexGrow:1
+    flex:1
   },
   button: {
     flex: 1,
@@ -207,7 +209,7 @@ const style = StyleSheet.create({
     marginTop: 8,
   },
   innerContainer: {
-    flexGrow: 1,
+    flex: 1,
     padding: 15,
     borderRadius: 8,
     justifyContent: 'center',

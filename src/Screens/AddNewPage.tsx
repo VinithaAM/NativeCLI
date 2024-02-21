@@ -62,9 +62,6 @@ function AddNewPage(prop: typeprop) {
     const Userdetails = await AsyncStorage.getItem('LoginResponse');
     const id = JSON.parse(Userdetails).id;
     refreshToken(id).catch(error => console.log('Error in Token', error));
-    const intervalId = setInterval(refreshToken, 300000);
-    console.log('intervalId', intervalId);
-    clearInterval(intervalId);
   };
   function handleClear() {
     sethistoryId('');
@@ -138,21 +135,36 @@ function AddNewPage(prop: typeprop) {
   };
   // var MasterValueData = MasterData;
   useEffect(() => {
+    const interval = setInterval(() => {
+      handletoken()
+  }, 10000);
     setTimeout(() => {
       masterDatafetch();
     }, 3000);
+    return () => clearInterval(interval);
   }, []);
   const masterDatafetch = () => {
-    MasterHistoryData()
+    try{
+      MasterHistoryData()
       .then(result => {
-        setLoading(true);
-        handletoken();
-        setMasterValue(result.data.data);
+        if(result.data.status==="Success"){
+          setLoading(true);
+          setMasterValue(result.data.data);
+        }
+        else if(result.data.status==="Failed"){
+          navigation.navigate('LoginPage');
+        }
       })
       .catch((error: any) => {
         console.log('Error occurred', error);
         navigation.navigate('LoginPage');
       });
+    }
+    catch(error){
+      console.log('Error occurred', error);
+      navigation.navigate('LoginPage');
+    }
+   
   };
   const onChangeDate = (selectedDate: any) => {
     setShowDatePicker(Platform.OS === 'ios');
@@ -421,14 +433,15 @@ const style = StyleSheet.create({
   },
   dropdown: {
     height: 40,
-    backgroundColor: 'lightgray',
-    borderRadius: 12,
+     backgroundColor: 'lightgray',
+    borderRadius: 8,
+    borderColor: 'blue',
     padding: 15,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
+    // shadowColor: '#000',
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 1,
+    // },
     width: width,
     //marginLeft: 10,
     //  marginLeft: 10,

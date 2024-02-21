@@ -37,6 +37,7 @@ import JailMonkey from 'jail-monkey';
 //import {connectToDatabase, login} from '../Services/Database';
 // import Icon from 'react-native-vector-icons/FontAwesome';
 import Icon from 'react-native-vector-icons/FontAwesome';
+ import ReactNativeBiometrics, { BiometryTypes } from 'react-native-biometrics'
 
 type Proptype = NativeStackScreenProps<ScreenType, 'LoginPage'>;
 
@@ -47,10 +48,15 @@ function LoginPage(prop: Proptype) {
   const [isPasswordSecure, setIsPasswordSecure] = useState(true);
   const [loading, setLoading] = useState(false);
   const isDarkMode = useColorScheme() === 'dark';
-
+  interface IsSensorAvailableResult {
+    available: boolean;
+    biometryType?: 'TouchID' | 'FaceID' | 'Biometrics';
+    error?: string;
+    }
   useEffect(() => {
     TokenFetch();
     IsCheckJailBreak()
+    authundicate()
   }, [Token]);
   const onPressClear = () => {
     setUserName('');
@@ -184,6 +190,38 @@ function LoginPage(prop: Proptype) {
   const [ispageLoad, setpageLoad] = useState(false);
   const [isDevelopmentSettingsMode, setIsDevelopmentSettingsMode] =
   useState<boolean>(false);
+ 
+  const authundicate=async ()=>{
+    const rnBiometrics = new ReactNativeBiometrics()
+    rnBiometrics.createKeys()
+  .then((resultObject) => {
+    const { publicKey } = resultObject
+    console.log(publicKey)
+    
+  })
+  
+    rnBiometrics.isSensorAvailable()
+    .then((resultObject) => {
+      const { available, biometryType } = resultObject
+      console.log("TouchId",available,biometryType)
+      if (available && biometryType === BiometryTypes.TouchID) {
+        console.log('TouchID is supported')
+      } 
+      else if (available && biometryType===BiometryTypes.FaceID){
+        console.log("FaceId is supported")
+      }
+      else if(available && biometryType=== BiometryTypes.Biometrics){
+        console.log("Biometrics is supported")
+      }
+    })
+  //  if(biometryType===BiometryTypes.FaceID)
+  //  {
+  //   console.log('TouchID is supported')
+  //  }
+  }
+
+
+
   const IsCheckJailBreak = () => {
     setJailBreak(JailMonkey.isJailBroken());
     setCanMockLocation(JailMonkey.canMockLocation());
@@ -204,6 +242,9 @@ function LoginPage(prop: Proptype) {
       InitialLoad()
   };
   const InitialLoad = () => {
+    const bmi = (parseFloat("50") /  
+    ((parseFloat("150") / 100) ** 2)).toFixed(2);
+    console.log("weight",bmi)
     if (isJailBreak) {
       setpageLoad(true);
     } else {
